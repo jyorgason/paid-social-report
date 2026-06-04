@@ -7,172 +7,119 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --green:     #3BAF47;
-  --green-d:   #2d8f38;
-  --green-bg:  #EBF7EC;
-  --gray-50:   #F9FAFB;
-  --gray-100:  #F3F4F6;
-  --gray-200:  #E5E7EB;
-  --gray-400:  #9CA3AF;
-  --gray-500:  #6B7280;
-  --gray-600:  #4B5563;
-  --gray-800:  #1F2937;
-  --red:       #DC2626;
-  --red-bg:    #FEF2F2;
-  --blue-50:   #EFF6FF;
-  --white:     #FFFFFF;
-  --shadow:    0 1px 3px rgba(0,0,0,.08);
-  --r:         6px;
-  --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --green:    #3BAF47; --green-d: #2d8f38; --green-bg: #EBF7EC;
+  --gray-50:  #F9FAFB; --gray-100: #F3F4F6; --gray-200: #E5E7EB;
+  --gray-400: #9CA3AF; --gray-500: #6B7280; --gray-800: #1F2937;
+  --red:      #DC2626; --blue-50: #EFF6FF; --white: #FFFFFF;
+  --shadow:   0 1px 3px rgba(0,0,0,.08);
+  --r: 6px; --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
-body { font-family: var(--font); font-size: 13px; color: var(--gray-800); background: var(--gray-100); }
+body { font-family: var(--font); font-size: 13px; color: var(--gray-800); background: var(--gray-100); padding-bottom: 24px; }
 
 /* ── HEADER ── */
 .header {
   background: var(--white); border-bottom: 1px solid var(--gray-200);
-  padding: 10px 18px; display: flex; align-items: center; gap: 12px;
-  flex-wrap: wrap; position: sticky; top: 0; z-index: 200;
-  box-shadow: var(--shadow);
+  padding: 10px 18px; display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; position: sticky; top: 0; z-index: 300; box-shadow: var(--shadow);
 }
-.logo { font-size: 15px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.logo { font-size: 15px; font-weight: 700; flex-shrink: 0; }
 .sep  { width: 1px; height: 22px; background: var(--gray-200); flex-shrink: 0; }
-
 .fg { display: flex; align-items: center; gap: 5px; }
 .fl { font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
-
-input[type=date], select, input[type=text] {
+input[type=date], select {
   font-family: var(--font); font-size: 12px; padding: 4px 8px;
   border: 1px solid var(--gray-200); border-radius: var(--r);
-  background: var(--white); color: var(--gray-800); outline: none;
+  background: var(--white); color: var(--gray-800); outline: none; cursor: pointer;
 }
-input[type=date]:focus, select:focus, input[type=text]:focus { border-color: var(--green); }
-select { cursor: pointer; max-width: 200px; }
-input[type=text] { width: 160px; }
-
-.apply-btn {
-  padding: 5px 14px; font-size: 12px; font-weight: 600;
-  background: var(--green); color: #fff; border: none;
-  border-radius: var(--r); cursor: pointer; flex-shrink: 0;
-}
-.apply-btn:hover { background: var(--green-d); }
-.clear-btn {
-  padding: 4px 10px; font-size: 11px; font-weight: 600;
-  background: transparent; color: var(--gray-500);
-  border: 1px solid var(--gray-200); border-radius: var(--r); cursor: pointer;
-}
-.clear-btn:hover { border-color: var(--red); color: var(--red); }
-
-.filter-badge {
-  display: none; font-size: 10px; font-weight: 700;
-  background: var(--green); color: #fff; border-radius: 10px;
-  padding: 2px 7px; margin-left: 2px;
-}
-.filter-badge.visible { display: inline; }
-
-.upd { font-size: 11px; color: var(--gray-400); white-space: nowrap; margin-left: auto; }
+input[type=date]:focus, select:focus { border-color: var(--green); }
+select { max-width: 200px; }
+.btn { padding: 5px 12px; font-size: 12px; font-weight: 600; border: none; border-radius: var(--r); cursor: pointer; }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { background: var(--green-d); }
+.btn-clear { background: transparent; color: var(--gray-500); border: 1px solid var(--gray-200); display: none; }
+.btn-clear:hover { border-color: var(--red); color: var(--red); }
+.upd { font-size: 11px; color: var(--gray-400); margin-left: auto; }
 
 /* ── VIEW TABS ── */
 .view-tabs { display: flex; gap: 2px; padding: 12px 18px 0; }
 .vt {
   padding: 7px 18px; font-size: 13px; font-weight: 600;
-  border: 1px solid transparent; border-bottom: none;
-  border-radius: 6px 6px 0 0; cursor: pointer;
-  background: var(--gray-200); color: var(--gray-500);
+  border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0;
+  cursor: pointer; background: var(--gray-200); color: var(--gray-500);
 }
 .vt:hover { background: var(--gray-100); color: var(--gray-800); }
 .vt.active { background: var(--white); color: var(--green); border-color: var(--gray-200); }
 
 /* ── MAIN ── */
-.main { padding: 0 18px 30px; }
+.main { padding: 0 18px 8px; }
 .vpanel { display: none; }
 .vpanel.active { display: block; }
 
 /* ── CHANNEL SECTION ── */
-.ch-section {
-  background: var(--white); border: 1px solid var(--gray-200);
-  border-radius: var(--r); box-shadow: var(--shadow);
-  margin-bottom: 16px; overflow: hidden;
-}
-.ch-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-bottom: 1px solid var(--gray-200);
-  background: var(--gray-50); cursor: pointer; user-select: none;
-}
+.ch-section { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r); box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden; }
+.ch-header { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--gray-200); background: var(--gray-50); cursor: pointer; user-select: none; }
 .ch-header:hover { background: var(--gray-100); }
-.ch-name { font-size: 14px; font-weight: 700; color: var(--gray-800); }
-.ch-icon { font-size: 16px; }
-.ch-toggle { margin-left: auto; font-size: 12px; color: var(--gray-400); }
-.ch-body { overflow: hidden; }
+.ch-name { font-size: 14px; font-weight: 700; }
+.ch-toggle { margin-left: auto; font-size: 11px; color: var(--gray-400); }
 .ch-body.collapsed { display: none; }
 
 /* ── TABLE ── */
-.tbl-wrap { overflow-x: auto; max-height: 600px; overflow-y: auto; }
+.tbl-wrap { overflow-x: auto; max-height: 480px; overflow-y: auto; scrollbar-width: none; }
+.tbl-wrap::-webkit-scrollbar { display: none; }
 
 table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
 
-/* Frozen period-label column */
+/* Frozen period column */
 .period-col, .period-label {
   position: sticky; left: 0; z-index: 2; background: var(--white);
-  min-width: 110px; max-width: 140px; white-space: nowrap;
+  min-width: 110px; max-width: 130px;
 }
 thead .period-col { z-index: 4; background: var(--gray-50); }
 
 thead th {
   position: sticky; top: 0; z-index: 3;
   background: var(--gray-50); border-bottom: 2px solid var(--gray-200);
-  padding: 6px 8px; text-align: right; font-weight: 700;
-  color: var(--gray-500); font-size: 11px; white-space: nowrap;
-  min-width: 80px;
+  padding: 5px 8px; text-align: right; font-weight: 700;
+  color: var(--gray-500); font-size: 11px; white-space: nowrap; min-width: 82px;
 }
-/* Group color bands on column headers */
-thead th[data-group="Media"]   { border-top: 3px solid #3B82F6; }
-thead th[data-group="Funnel"]  { border-top: 3px solid var(--green); }
-thead th[data-group="Payback"] { border-top: 3px solid var(--amber, #F59E0B); }
+thead th[data-g="Media"]   { border-top: 3px solid #3B82F6; }
+thead th[data-g="Funnel"]  { border-top: 3px solid var(--green); }
+thead th[data-g="Payback"] { border-top: 3px solid #F59E0B; }
 
 tbody tr { border-bottom: 1px solid var(--gray-100); }
-tbody tr:last-child { border-bottom: none; }
 tbody tr:hover td { background: var(--blue-50) !important; }
-
-td { padding: 5px 8px; text-align: right; color: var(--gray-800); font-size: 12px; }
-.period-label { text-align: left; font-weight: 700; color: var(--gray-700, #374151); font-size: 12px; }
+td { padding: 5px 8px; text-align: right; font-size: 12px; }
+.period-label { text-align: left; font-weight: 700; color: var(--gray-800); font-size: 12px; }
 .period-label.cur { background: var(--green-bg) !important; color: var(--green); }
-
 td.cur { background: var(--green-bg); }
 
-tr.sec-hdr td {
-  background: var(--gray-100); font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .5px; color: var(--gray-400);
-  padding: 3px 10px; border-top: 1px solid var(--gray-200);
-}
-tr.sum-row td {
-  background: var(--gray-50); font-style: italic;
-  border-top: 1px dashed var(--gray-200);
-}
-tr.sum-row td:first-child { color: var(--gray-500); font-size: 11px; font-weight: 700; }
-tr.sum-div td { background: transparent; height: 5px; border: none; }
+tr.sum-div td { height: 4px; border: none; }
+tr.sum-row td { background: var(--gray-50); font-style: italic; border-top: 1px dashed var(--gray-200); }
+tr.sum-row .period-label { color: var(--gray-500); font-size: 11px; font-weight: 700; }
 
 .pos { color: #16A34A; font-weight: 700; }
 .neg { color: var(--red); font-weight: 700; }
 .neu { color: var(--gray-400); }
 
-/* ── LEGEND ── */
-.legend {
-  display: flex; flex-wrap: wrap; gap: 14px; padding: 8px 14px;
-  font-size: 11px; color: var(--gray-500); border-top: 1px solid var(--gray-200);
+/* ── CAMPAIGN REPORT ── */
+.camp-controls { display: flex; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--gray-200); background: var(--gray-50); flex-wrap: wrap; align-items: center; }
+.camp-section { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+
+/* ── MASTER SCROLL BAR ── */
+#master-scroll {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 16px;
+  overflow-x: auto; overflow-y: hidden; z-index: 400;
+  background: var(--gray-100); border-top: 1px solid var(--gray-200);
 }
-.ldot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+#master-scroll-inner { height: 1px; }
+
+/* ── LEGEND ── */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 7px 12px; font-size: 11px; color: var(--gray-500); border-top: 1px solid var(--gray-200); }
 
 /* ── STATES ── */
 .msg { padding: 50px 20px; text-align: center; color: var(--gray-400); font-size: 14px; }
-.spin {
-  width: 24px; height: 24px; border: 3px solid var(--gray-200);
-  border-top-color: var(--green); border-radius: 50%;
-  animation: sp .7s linear infinite; margin: 0 auto 10px;
-}
+.spin { width: 24px; height: 24px; border: 3px solid var(--gray-200); border-top-color: var(--green); border-radius: 50%; animation: sp .7s linear infinite; margin: 0 auto 10px; }
 @keyframes sp { to { transform: rotate(360deg); } }
-
-/* ── FILTER LOADING STATE ── */
-.filter-loading { opacity: .5; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -181,36 +128,14 @@ tr.sum-div td { background: transparent; height: 5px; border: none; }
 <div class="header">
   <span class="logo">📊 Paid Social — Channel Performance</span>
   <div class="sep"></div>
-
-  <!-- Date filters -->
   <div class="fg"><span class="fl">Start</span><input type="date" id="sd" value="2025-01-01"></div>
   <div class="fg"><span class="fl">End</span><input type="date" id="ed"></div>
-
   <div class="sep"></div>
-
-  <!-- Dimension filters -->
-  <div class="fg">
-    <span class="fl">Campaign</span>
-    <select id="fCampaign" onchange="onDimFilterChange()">
-      <option value="">All Campaigns</option>
-    </select>
-  </div>
-  <div class="fg">
-    <span class="fl">Ad Group</span>
-    <select id="fAdGroup" onchange="onDimFilterChange()">
-      <option value="">All Ad Groups</option>
-    </select>
-  </div>
-  <div class="fg">
-    <span class="fl">Ad ID</span>
-    <select id="fAdId" onchange="onDimFilterChange()">
-      <option value="">All Ad IDs</option>
-    </select>
-  </div>
-
-  <button class="apply-btn" onclick="render()">Apply</button>
-  <button class="clear-btn" id="clearBtn" onclick="clearFilters()" style="display:none">✕ Clear filters</button>
-
+  <div class="fg"><span class="fl">Campaign</span><select id="fCampaign" onchange="onDimChange()"><option value="">All Campaigns</option></select></div>
+  <div class="fg"><span class="fl">Ad Group</span><select id="fAdGroup" onchange="onDimChange()"><option value="">All Ad Groups</option></select></div>
+  <div class="fg"><span class="fl">Ad ID</span><select id="fAdId" onchange="onDimChange()"><option value="">All Ad IDs</option></select></div>
+  <button class="btn btn-green" onclick="render()">Apply</button>
+  <button class="btn btn-clear" id="clearBtn" onclick="clearDimFilters()">✕ Clear</button>
   <span class="upd" id="upd"></span>
 </div>
 
@@ -219,328 +144,397 @@ tr.sum-div td { background: transparent; height: 5px; border: none; }
   <div class="vt active" onclick="switchView('weekly',this)">Weekly</div>
   <div class="vt" onclick="switchView('daily',this)">Daily</div>
   <div class="vt" onclick="switchView('monthly',this)">Monthly</div>
+  <div class="vt" onclick="switchView('campaign',this)">Campaign Report</div>
 </div>
 
 <!-- PANELS -->
 <div class="main">
-  <div id="pnl-weekly"  class="vpanel active"><div class="msg"><div class="spin"></div>Loading…</div></div>
-  <div id="pnl-daily"   class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
-  <div id="pnl-monthly" class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
+  <div id="pnl-weekly"   class="vpanel active"><div class="msg"><div class="spin"></div>Loading…</div></div>
+  <div id="pnl-daily"    class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
+  <div id="pnl-monthly"  class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
+  <div id="pnl-campaign" class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
 </div>
+
+<!-- MASTER HORIZONTAL SCROLLBAR -->
+<div id="master-scroll"><div id="master-scroll-inner"></div></div>
 
 <script>
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
 const CHANNELS = ['Total','Facebook','LinkedIn','YouTube','Reddit'];
 const CH_ICONS = {Total:'📊',Facebook:'📘',LinkedIn:'💼',YouTube:'▶️',Reddit:'🔴'};
 
-// [key, label, format, group, lowerIsBetter]
-// Exact column order from Tableau workbook
+// Tableau column order: key, label, format, group, lowerIsBetter
 const METRICS = [
-  ['spend',        'Spend',       '$',  'Media',    false],
-  ['impressions',  'Impressions', '#',  'Media',    false],
-  ['clicks',       'Clicks',      '#',  'Media',    false],
-  ['ecpm',         'eCPM',        '$',  'Media',    true ],
-  ['ctr',          'CTR',         '%',  'Media',    false],
-  ['ecpc',         'eCPC',        '$',  'Media',    true ],
-  ['mql1',         'MQL1',        '#',  'Funnel',   false],
-  ['cp_mql1',      'CP MQL1',     '$',  'Funnel',   true ],
-  ['mql1_ta',      'MQL1 TA',     '#',  'Funnel',   false],
-  ['cp_mql1_ta',   'CP MQL1 TA',  '$',  'Funnel',   true ],
-  ['mql2',         'MQL2',        '#',  'Funnel',   false],
-  ['cp_mql2',      'CP MQL2',     '$',  'Funnel',   true ],
-  ['mql2_ta',      'MQL2 TA',     '#',  'Funnel',   false],
-  ['cp_mql2_ta',   'CP MQL2 TA',  '$',  'Funnel',   true ],
-  ['dq',           'DQ',          '#',  'Funnel',   true ],
-  ['dq_rate',      'DQ Rate',     '%',  'Funnel',   true ],
-  ['sal',          'SAL',         '#',  'Funnel',   false],
-  ['cp_sal',       'CP SAL',      '$',  'Funnel',   true ],
-  ['tql',          'TQL',         '#',  'Funnel',   false],
-  ['cp_tql',       'CP TQL',      '$',  'Funnel',   true ],
-  ['sao',          'SAO',         '#',  'Funnel',   false],
-  ['cp_sao',       'CP SAO',      '$',  'Funnel',   true ],
-  ['mql1_to_sao',  'MQL1→SAO',    '%',  'Funnel',   false],
-  ['sao_ta',       'SAO TA',      '#',  'Funnel',   false],
-  ['cp_sao_ta',    'CP SAO TA',   '$',  'Funnel',   true ],
-  ['cw',           'CW',          '#',  'Funnel',   false],
-  ['cp_cw',        'CP CW',       '$',  'Funnel',   true ],
-  ['sao_to_cw',    'SAO→CW',      '%',  'Funnel',   false],
-  ['cw_mrr',       'CW MRR',      '$',  'Funnel',   false],
-  ['pbp_months',   'PBP (Mo)',    '.1', 'Payback',  true ],
-  ['pbp_years',    'PBP (Yr)',    '.2', 'Payback',  true ],
+  ['spend',       'Spend',      '$',  'Media',   false],
+  ['impressions', 'Impressions','#',  'Media',   false],
+  ['clicks',      'Clicks',     '#',  'Media',   false],
+  ['ecpm',        'eCPM',       '$',  'Media',   true ],
+  ['ctr',         'CTR',        '%',  'Media',   false],
+  ['ecpc',        'eCPC',       '$',  'Media',   true ],
+  ['mql1',        'MQL1',       '#',  'Funnel',  false],
+  ['cp_mql1',     'CP MQL1',    '$',  'Funnel',  true ],
+  ['mql1_ta',     'MQL1 TA',    '#',  'Funnel',  false],
+  ['cp_mql1_ta',  'CP MQL1 TA', '$',  'Funnel',  true ],
+  ['mql2',        'MQL2',       '#',  'Funnel',  false],
+  ['cp_mql2',     'CP MQL2',    '$',  'Funnel',  true ],
+  ['mql2_ta',     'MQL2 TA',    '#',  'Funnel',  false],
+  ['cp_mql2_ta',  'CP MQL2 TA', '$',  'Funnel',  true ],
+  ['dq',          'DQ',         '#',  'Funnel',  true ],
+  ['dq_rate',     'DQ Rate',    '%',  'Funnel',  true ],
+  ['sal',         'SAL',        '#',  'Funnel',  false],
+  ['cp_sal',      'CP SAL',     '$',  'Funnel',  true ],
+  ['tql',         'TQL',        '#',  'Funnel',  false],
+  ['cp_tql',      'CP TQL',     '$',  'Funnel',  true ],
+  ['sao',         'SAO',        '#',  'Funnel',  false],
+  ['cp_sao',      'CP SAO',     '$',  'Funnel',  true ],
+  ['mql1_to_sao', 'MQL1→SAO',   '%',  'Funnel',  false],
+  ['sao_ta',      'SAO TA',     '#',  'Funnel',  false],
+  ['cp_sao_ta',   'CP SAO TA',  '$',  'Funnel',  true ],
+  ['cw',          'CW',         '#',  'Funnel',  false],
+  ['cp_cw',       'CP CW',      '$',  'Funnel',  true ],
+  ['sao_to_cw',   'SAO→CW',     '%',  'Funnel',  false],
+  ['cw_mrr',      'CW MRR',     '$',  'Funnel',  false],
+  ['pbp_months',  'PBP (Mo)',   '.1', 'Payback', true ],
+  ['pbp_years',   'PBP (Yr)',   '.2', 'Payback', true ],
 ];
 
 const RAW_KEYS = ['spend','impressions','clicks','mql1','mql1_ta','mql2','mql2_ta',
-                  'mql_total','sal','tql','sao','sao_ta','cw','cw_ta','cw_mrr','dq'];
+                  'mql_total','sal','sal_ta','tql','tql_ta','sao','sao_ta',
+                  'cw','cw_ta','cw_mrr','cw_mrr_ta','dq'];
+
+// L1/L2 dimension options for Campaign Report
+const DIM_OPTIONS = [
+  {key:'ad_campaign_name', label:'Ad Campaign Name'},
+  {key:'ad_group_name',    label:'Ad Group Name'},
+  {key:'ad_id',            label:'Ad ID'},
+  {key:'utm_campaign',     label:'UTM Campaign'},
+  {key:'funnel_placement', label:'Funnel Placement'},
+  {key:'ad_source',        label:'Ad Source'},
+  {key:'subchannel_name',  label:'Subchannel'},
+];
 
 // ── STATE ────────────────────────────────────────────────────────────────────
-let CHANNEL_DATA = null;   // channel_data.json  — daily × channel rows
-let CAMPAIGN_DATA = null;  // campaign_data.json — daily × channel × campaign rows
-let VIEW = 'weekly';
-let COLLAPSED = {};        // {viewKey: {channel: bool}}
+let CHANNEL_DATA  = null;
+let CAMPAIGN_DATA = null;
+let VIEW    = 'weekly';
+let COLLAPSED = {};
+let CAMP_L1 = 'ad_campaign_name';
+let CAMP_L2 = 'ad_group_name';
+let CAMP_CH = 'Total';
 
 // ── FORMAT ───────────────────────────────────────────────────────────────────
 function fmt(v, f) {
   if (v == null || v === '' || isNaN(+v) || !isFinite(+v)) return '<span class="neu">—</span>';
   const n = +v;
-  if (f === '$')  return '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if (f === '%')  return (n*100).toFixed(2) + '%';
-  if (f === '#')  return Math.round(n).toLocaleString('en-US');
-  if (f === '.1') return n.toFixed(1);
-  if (f === '.2') return n.toFixed(2);
+  if (f==='$')  return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if (f==='%')  return (n*100).toFixed(2)+'%';
+  if (f==='#')  return Math.round(n).toLocaleString('en-US');
+  if (f==='.1') return n.toFixed(1);
+  if (f==='.2') return n.toFixed(2);
   return n.toLocaleString();
 }
 function fmtDelta(v, lib) {
-  if (v == null || !isFinite(+v)) return '<span class="neu">—</span>';
+  if (v==null || !isFinite(+v)) return '<span class="neu">—</span>';
   const n = +v;
-  const good = lib ? n < 0 : n > 0;
-  const cls = n === 0 ? 'neu' : good ? 'pos' : 'neg';
-  const arrow = n > 0 ? '▲' : n < 0 ? '▼' : '';
-  return `<span class="${cls}">${arrow}${(Math.abs(n)*100).toFixed(1)}%</span>`;
+  const good = lib ? n<0 : n>0;
+  const cls = n===0?'neu': good?'pos':'neg';
+  const arr = n>0?'▲': n<0?'▼':'';
+  return `<span class="${cls}">${arr}${(Math.abs(n)*100).toFixed(1)}%</span>`;
 }
-const div = (a, b) => (!b || b === 0) ? null : a / b;
+const div = (a,b) => (!b||b===0)?null:a/b;
 
 function enrich(r) {
-  r.ctr        = div(r.clicks,   r.impressions);
-  r.ecpm       = r.impressions ? r.spend / (r.impressions / 1000) : null;
-  r.ecpc       = div(r.spend,    r.clicks);
-  r.dq_rate    = div(r.dq,       r.mql_total);
-  r.cp_mql1    = div(r.spend,    r.mql1);
-  r.cp_mql1_ta = div(r.spend,    r.mql1_ta);
-  r.cp_mql2    = div(r.spend,    r.mql2);
-  r.cp_mql2_ta = div(r.spend,    r.mql2_ta);
-  r.cp_sal     = div(r.spend,    r.sal);
-  r.cp_tql     = div(r.spend,    r.tql);
-  r.cp_sao     = div(r.spend,    r.sao);
-  r.cp_sao_ta  = div(r.spend,    r.sao_ta);
-  r.cp_cw      = div(r.spend,    r.cw);
-  r.mql1_to_sao = div(r.sao,    r.mql1);
-  r.sao_to_cw   = div(r.cw,     r.sao);
-  r.pbp_months  = div(r.spend,   r.cw_mrr);
-  r.pbp_years   = r.pbp_months != null ? r.pbp_months / 12 : null;
+  r.ctr        = div(r.clicks, r.impressions);
+  r.ecpm       = r.impressions ? r.spend/(r.impressions/1000) : null;
+  r.ecpc       = div(r.spend, r.clicks);
+  r.dq_rate    = div(r.dq, r.mql_total);
+  r.cp_mql1    = div(r.spend, r.mql1);
+  r.cp_mql1_ta = div(r.spend, r.mql1_ta);
+  r.cp_mql2    = div(r.spend, r.mql2);
+  r.cp_mql2_ta = div(r.spend, r.mql2_ta);
+  r.cp_sal     = div(r.spend, r.sal);
+  r.cp_tql     = div(r.spend, r.tql);
+  r.cp_sao     = div(r.spend, r.sao);
+  r.cp_sao_ta  = div(r.spend, r.sao_ta);
+  r.cp_cw      = div(r.spend, r.cw);
+  r.mql1_to_sao = div(r.sao, r.mql1);
+  r.sao_to_cw   = div(r.cw, r.sao);
+  r.pbp_months  = div(r.spend, r.cw_mrr);
+  r.pbp_years   = r.pbp_months != null ? r.pbp_months/12 : null;
   return r;
 }
 function sumRows(rows) {
-  const s = Object.fromEntries(RAW_KEYS.map(k => [k, 0]));
-  rows.forEach(r => RAW_KEYS.forEach(k => { s[k] += (parseFloat(r[k]) || 0); }));
+  const s = Object.fromEntries(RAW_KEYS.map(k=>[k,0]));
+  rows.forEach(r => RAW_KEYS.forEach(k=>{ s[k]+=(parseFloat(r[k])||0); }));
   return enrich(s);
 }
 
-// ── FILTER HELPERS ───────────────────────────────────────────────────────────
-function getFilters() {
+// ── FILTER HELPERS ────────────────────────────────────────────────────────────
+function getF() {
   return {
     sd: document.getElementById('sd').value,
-    ed: document.getElementById('ed').value || new Date().toISOString().slice(0,10),
+    ed: document.getElementById('ed').value,
     campaign: document.getElementById('fCampaign').value,
     adGroup:  document.getElementById('fAdGroup').value,
     adId:     document.getElementById('fAdId').value,
   };
 }
+function hasDim(f) { return f.campaign||f.adGroup||f.adId; }
 
-function hasDimFilter(f) {
-  return f.campaign || f.adGroup || f.adId;
-}
-
-// Source rows for a channel, respecting dimension filters
-function sourceRows(ch, f) {
-  if (hasDimFilter(f) && CAMPAIGN_DATA) {
-    let rows = CAMPAIGN_DATA.daily;
-    if (ch !== 'Total') rows = rows.filter(r => r.channel === ch);
-    if (f.campaign) rows = rows.filter(r => r.ad_campaign_name === f.campaign);
-    if (f.adGroup)  rows = rows.filter(r => r.ad_group_name   === f.adGroup);
-    if (f.adId)     rows = rows.filter(r => String(r.ad_id)   === String(f.adId));
+function srcRows(ch, f) {
+  // When dimension filters active, use campaign data if available
+  if (hasDim(f) && CAMPAIGN_DATA) {
+    let rows = ch==='Total' ? CAMPAIGN_DATA.daily : CAMPAIGN_DATA.daily.filter(r=>r.channel===ch);
+    if (f.campaign) rows = rows.filter(r=>r.ad_campaign_name===f.campaign);
+    if (f.adGroup)  rows = rows.filter(r=>r.ad_group_name===f.adGroup);
+    if (f.adId)     rows = rows.filter(r=>String(r.ad_id)===String(f.adId));
     return rows;
   }
-  let rows = CHANNEL_DATA.daily;
-  return ch === 'Total' ? rows : rows.filter(r => r.channel === ch);
+  const rows = CHANNEL_DATA.daily;
+  return ch==='Total' ? rows : rows.filter(r=>r.channel===ch);
 }
 
-// ── AGGREGATION ──────────────────────────────────────────────────────────────
-const ds = d => d.toISOString().slice(0,10);
+// ── AGGREGATION ───────────────────────────────────────────────────────────────
+const ds = d=>d.toISOString().slice(0,10);
 function weekStart(d) {
-  const x = new Date(d); x.setHours(0,0,0,0);
-  x.setDate(x.getDate() - (x.getDay() + 6) % 7);
-  return x;
+  const x=new Date(d); x.setHours(0,0,0,0);
+  x.setDate(x.getDate()-(x.getDay()+6)%7); return x;
 }
 
 function aggWeekly(ch, f) {
-  const end   = new Date(f.ed + 'T00:00:00');
-  const start = new Date(f.sd + 'T00:00:00');
+  // Use end date for weekly window (item 6)
+  const end   = new Date(f.ed+'T00:00:00');
+  const start = new Date(f.sd+'T00:00:00');
   const endMon = weekStart(end);
-  const buckets = Array.from({length:7}, (_,i) => ({weekNum:i, rows:[]}));
-
-  for (const row of sourceRows(ch, f)) {
-    const d = new Date(row.date + 'T00:00:00');
-    if (d < start || d > end) continue;
-    const wn = Math.round((endMon - weekStart(d)) / (7*864e5));
-    if (wn >= 0 && wn <= 6) buckets[wn].rows.push(row);
+  const buckets = Array.from({length:7},(_,i)=>({wn:i,rows:[]}));
+  for (const row of srcRows(ch,f)) {
+    const d = new Date(row.date+'T00:00:00');
+    if (d<start||d>end) continue;
+    const wn = Math.round((endMon-weekStart(d))/(7*864e5));
+    if (wn>=0&&wn<=6) buckets[wn].rows.push(row);
   }
-  return buckets.map(({weekNum, rows}) => {
-    const wMon = new Date(endMon); wMon.setDate(wMon.getDate() - weekNum*7);
-    const wSun = new Date(wMon);   wSun.setDate(wSun.getDate() + 6);
-    return {
-      label: weekNum === 0 ? 'This Week' : weekNum === 1 ? 'Week −1' : `Week −${weekNum}`,
-      sub: `${ds(wMon)} – ${ds(wSun)}`,
-      isCurrent: weekNum === 0,
-      ...sumRows(rows),
-    };
+  return buckets.map(({wn,rows})=>{
+    const wMon=new Date(endMon); wMon.setDate(wMon.getDate()-wn*7);
+    const wSun=new Date(wMon);   wSun.setDate(wSun.getDate()+6);
+    return {label:wn===0?'This Week':wn===1?'Week −1':`Week −${wn}`, sub:`${ds(wMon)} – ${ds(wSun)}`, isCurrent:wn===0, ...sumRows(rows)};
   });
 }
 
 function aggDaily(ch, f) {
-  const end   = new Date(f.ed + 'T00:00:00');
-  const start = new Date(f.sd + 'T00:00:00');
-  const result = [];
-  for (let i = 0; i <= 6; i++) {
-    const t = new Date(end); t.setDate(t.getDate() - i*7);
-    if (t < start) break;
-    const dateStr = ds(t);
-    const rows = sourceRows(ch, f).filter(r => r.date === dateStr);
-    result.push({ label: dateStr, isCurrent: i === 0, ...sumRows(rows) });
+  // Same day-of-week at 7-day intervals from end date (item 6)
+  const end   = new Date(f.ed+'T00:00:00');
+  const start = new Date(f.sd+'T00:00:00');
+  const result=[];
+  for (let i=0;i<=6;i++) {
+    const t=new Date(end); t.setDate(t.getDate()-i*7);
+    if (t<start) break;
+    const dateStr=ds(t);
+    const rows=srcRows(ch,f).filter(r=>r.date===dateStr);
+    result.push({label:dateStr, isCurrent:i===0, ...sumRows(rows)});
   }
   return result;
 }
 
 function aggMonthly(ch, f) {
-  const buckets = {};
-  for (const row of sourceRows(ch, f)) {
-    if (row.date < f.sd || row.date > f.ed) continue;
-    const mo = row.date.slice(0,7);
-    (buckets[mo] = buckets[mo] || []).push(row);
+  const buckets={};
+  for (const row of srcRows(ch,f)) {
+    if (row.date<f.sd||row.date>f.ed) continue;
+    const mo=row.date.slice(0,7);
+    (buckets[mo]=buckets[mo]||[]).push(row);
   }
-  return Object.entries(buckets)
-    .sort(([a],[b]) => b.localeCompare(a))
-    .map(([mo, rows]) => ({
-      label: new Date(mo+'-02T00:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}),
-      isCurrent: mo === new Date().toISOString().slice(0,7),
+  return Object.entries(buckets).sort(([a],[b])=>b.localeCompare(a))
+    .map(([mo,rows])=>({
+      label:new Date(mo+'-02T00:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}),
+      isCurrent:mo===new Date().toISOString().slice(0,7),
       ...sumRows(rows),
     }));
 }
 
-// ── SUMMARY ROWS ─────────────────────────────────────────────────────────────
-function calcWoW(periods) {
-  const c = periods[0], p = periods[1];
-  if (!c || !p) return null;
-  return Object.fromEntries(METRICS.map(([k]) => {
-    const cv = c[k], pv = p[k];
-    return [k, (cv != null && pv != null && pv !== 0) ? (cv - pv) / Math.abs(pv) : null];
+// ── SUMMARY ROWS ──────────────────────────────────────────────────────────────
+function calcWoW(p) {
+  const c=p[0],pr=p[1]; if(!c||!pr) return null;
+  return Object.fromEntries(METRICS.map(([k])=>{
+    const cv=c[k],pv=pr[k];
+    return [k,(cv!=null&&pv!=null&&pv!==0)?(cv-pv)/Math.abs(pv):null];
   }));
 }
-function calc6Avg(periods) {
-  const prior = periods.slice(1,7);
-  if (!prior.length) return null;
-  const s = Object.fromEntries(RAW_KEYS.map(k => [k, 0]));
-  prior.forEach(p => RAW_KEYS.forEach(k => { s[k] += (p[k] || 0) / prior.length; }));
+function calc6Avg(p) {
+  const prior=p.slice(1,7); if(!prior.length) return null;
+  const s=Object.fromEntries(RAW_KEYS.map(k=>[k,0]));
+  prior.forEach(r=>RAW_KEYS.forEach(k=>{s[k]+=(r[k]||0)/prior.length;}));
   return enrich(s);
 }
-function calcPctAvg(periods, avg) {
-  const c = periods[0];
-  if (!c || !avg) return null;
-  return Object.fromEntries(METRICS.map(([k]) => {
-    const cv = c[k], av = avg[k];
-    return [k, (cv != null && av != null && av !== 0) ? (cv - av) / Math.abs(av) : null];
+function calcPctAvg(p, avg) {
+  const c=p[0]; if(!c||!avg) return null;
+  return Object.fromEntries(METRICS.map(([k])=>{
+    const cv=c[k],av=avg[k];
+    return [k,(cv!=null&&av!=null&&av!==0)?(cv-av)/Math.abs(av):null];
   }));
 }
 
 // ── TABLE BUILDER ─────────────────────────────────────────────────────────────
-// Layout: periods as ROWS (matching Tableau), metric names as COLUMN HEADERS
-function buildTable(periods, viewType) {
-  if (!periods?.length) return '<div class="msg" style="padding:24px">No data for selected range.</div>';
+// Tableau layout: periods as rows, metric names as column headers
+function buildTable(periods, vt) {
+  if (!periods?.length) return '<div class="msg" style="padding:20px">No data.</div>';
+  const wow=calcWoW(periods), avg6=calc6Avg(periods), pct=calcPctAvg(periods,avg6);
+  const wL=vt==='monthly'?'MoM % Change':'WoW % Change';
+  const aL=vt==='monthly'?'6-Month Avg':'6-Week Avg';
+  const pL=vt==='monthly'?'% vs 6-Mo Avg':'% vs 6-Wk Avg';
 
-  const wow    = calcWoW(periods);
-  const avg6   = calc6Avg(periods);
-  const pctAvg = calcPctAvg(periods, avg6);
+  const mHdr=METRICS.map(([,l,,g])=>`<th data-g="${g}">${l}</th>`).join('');
 
-  const wowLbl = viewType === 'monthly' ? 'MoM % Change'  : 'WoW % Change';
-  const avgLbl = viewType === 'monthly' ? '6-Month Avg'   : '6-Week Avg';
-  const pctLbl = viewType === 'monthly' ? '% vs 6-Mo Avg' : '% vs 6-Wk Avg';
-
-  // Column headers = metric names (with group color coding via data-attr)
-  const metricHdrs = METRICS.map(([,label,,group]) =>
-    `<th data-group="${group}">${label}</th>`
-  ).join('');
-
-  // One ROW per period
-  const periodRows = periods.map(p => {
-    const cells = METRICS.map(([key,,format]) =>
-      `<td class="${p.isCurrent?'cur':''}">${fmt(p[key], format)}</td>`
-    ).join('');
-    return `<tr>
-      <td class="period-label${p.isCurrent?' cur':''}" title="${p.sub||p.label}">${p.label}</td>
-      ${cells}
-    </tr>`;
+  const pRows=periods.map(p=>{
+    const cells=METRICS.map(([k,,f])=>`<td class="${p.isCurrent?'cur':''}">${fmt(p[k],f)}</td>`).join('');
+    return `<tr><td class="period-label${p.isCurrent?' cur':''}" title="${p.sub||p.label}">${p.label}</td>${cells}</tr>`;
   }).join('');
 
-  // Summary rows: one cell per metric column
-  const summRow = (lbl, dataObj, isDelta) => {
-    if (!dataObj) return '';
-    const cells = METRICS.map(([key,,format,,lib]) => {
-      const v = dataObj[key];
-      return `<td>${isDelta ? fmtDelta(v, lib) : fmt(v, format)}</td>`;
-    }).join('');
+  const sRow=(lbl,obj,isDelta)=>{
+    if(!obj) return '';
+    const cells=METRICS.map(([k,,f,,lib])=>`<td>${isDelta?fmtDelta(obj[k],lib):fmt(obj[k],f)}</td>`).join('');
     return `<tr class="sum-row"><td class="period-label">${lbl}</td>${cells}</tr>`;
   };
 
-  const ncols = METRICS.length + 1;
   return `<table>
-    <thead><tr><th class="period-col"></th>${metricHdrs}</tr></thead>
+    <thead><tr><th class="period-col"></th>${mHdr}</tr></thead>
     <tbody>
-      ${periodRows}
-      <tr class="sum-div"><td colspan="${ncols}"></td></tr>
-      ${summRow(wowLbl, wow,    true)}
-      ${summRow(avgLbl, avg6,   false)}
-      ${summRow(pctLbl, pctAvg, true)}
+      ${pRows}
+      <tr class="sum-div"><td colspan="${METRICS.length+1}"></td></tr>
+      ${sRow(wL,wow,true)}${sRow(aL,avg6,false)}${sRow(pL,pct,true)}
     </tbody>
   </table>`;
 }
 
-// ── SECTION BUILDER ───────────────────────────────────────────────────────────
-function buildSection(ch, periods, viewType, viewKey) {
-  const colKey = `${viewKey}_${ch}`;
-  const collapsed = COLLAPSED[colKey] || false;
-
-  const tableHtml = buildTable(periods, viewType);
-  const rowCount  = periods.filter(p => p.spend > 0 || p.mql1 > 0).length;
-  const rowLabel  = rowCount ? `` : ' <span style="color:var(--gray-400);font-size:11px;font-weight:400">— no data</span>';
-
-  return `<div class="ch-section" id="sec_${colKey}">
-    <div class="ch-header" onclick="toggleSection('${colKey}')">
-      <span class="ch-icon">${CH_ICONS[ch]}</span>
-      <span class="ch-name">${ch}${rowLabel}</span>
-      <span class="ch-toggle">${collapsed ? '▼ expand' : '▲ collapse'}</span>
+// ── CHANNEL SECTION ───────────────────────────────────────────────────────────
+function buildSection(ch, periods, vt, vKey) {
+  const key=`${vKey}_${ch}`, col=COLLAPSED[key]||false;
+  return `<div class="ch-section" id="sec_${key}">
+    <div class="ch-header" onclick="toggleSec('${key}')">
+      <span>${CH_ICONS[ch]}</span>
+      <span class="ch-name">${ch}</span>
+      <span class="ch-toggle">${col?'▼ expand':'▲ collapse'}</span>
     </div>
-    <div class="ch-body ${collapsed ? 'collapsed' : ''}" id="body_${colKey}">
-      <div class="tbl-wrap">${tableHtml}</div>
+    <div class="ch-body${col?' collapsed':''}" id="body_${key}">
+      <div class="tbl-wrap" data-view="${vKey}">${buildTable(periods,vt)}</div>
       <div class="legend">
-        <span><span class="ldot" style="background:var(--green-bg);border:1px solid var(--green)"></span>Current period</span>
+        <span>🟢 Current period</span>
         <span style="font-style:italic;color:var(--gray-400)">Italic = summary rows</span>
-        <span class="pos">▲</span> better &nbsp;·&nbsp; <span class="neg">▼</span> worse (cost metrics inverted)
+        <span><span class="pos">▲</span>/<span class="neg">▼</span> cost metrics inverted</span>
+        <span style="color:#3B82F6">■ Media</span>
+        <span style="color:var(--green)">■ Funnel</span>
+        <span style="color:#F59E0B">■ Payback</span>
       </div>
     </div>
   </div>`;
 }
 
-function toggleSection(key) {
-  COLLAPSED[key] = !COLLAPSED[key];
-  const body   = document.getElementById(`body_${key}`);
-  const toggle = document.querySelector(`#sec_${key} .ch-toggle`);
-  body.classList.toggle('collapsed', COLLAPSED[key]);
-  toggle.textContent = COLLAPSED[key] ? '▼ expand' : '▲ collapse';
+function toggleSec(key) {
+  COLLAPSED[key]=!COLLAPSED[key];
+  document.getElementById(`body_${key}`).classList.toggle('collapsed',COLLAPSED[key]);
+  document.querySelector(`#sec_${key} .ch-toggle`).textContent=COLLAPSED[key]?'▼ expand':'▲ collapse';
+}
+
+// ── CAMPAIGN REPORT ───────────────────────────────────────────────────────────
+function buildCampaignReport() {
+  const f=getF();
+  if (!CAMPAIGN_DATA) return '<div class="msg">Campaign data loading…</div>';
+
+  // L1/L2 selectors
+  const dimSel=(id,val)=>DIM_OPTIONS.map(o=>`<option value="${o.key}"${o.key===val?' selected':''}>${o.label}</option>`).join('');
+
+  // Channel selector
+  const chSel=CHANNELS.map(c=>`<option value="${c}"${c===CAMP_CH?' selected':''}>${CH_ICONS[c]} ${c}</option>`).join('');
+
+  // Filter and aggregate campaign data
+  let rows = CAMP_CH==='Total' ? CAMPAIGN_DATA.campaigns : CAMPAIGN_DATA.campaigns.filter(r=>r.channel===CAMP_CH);
+  if (f.sd||f.ed) {
+    // Campaign data is pre-aggregated (no date); use as-is but note the date range
+  }
+
+  // Group by L1
+  const l1Map = {};
+  rows.forEach(r => {
+    const l1val = r[CAMP_L1] || '(none)';
+    if (!l1Map[l1val]) l1Map[l1val] = [];
+    l1Map[l1val].push(r);
+  });
+
+  // Sort L1 by spend desc
+  const l1Sorted = Object.entries(l1Map).sort(([,a],[,b])=>{
+    const sa=a.reduce((s,r)=>s+(parseFloat(r.spend)||0),0);
+    const sb=b.reduce((s,r)=>s+(parseFloat(r.spend)||0),0);
+    return sb-sa;
+  });
+
+  const mHdr=METRICS.map(([,l,,g])=>`<th data-g="${g}">${l}</th>`).join('');
+
+  let tBody='';
+  for (const [l1val, l1rows] of l1Sorted) {
+    const agg = sumRows(l1rows);
+    const cells=METRICS.map(([k,,f])=>`<td>${fmt(agg[k],f)}</td>`).join('');
+    tBody+=`<tr style="cursor:pointer" onclick="toggleL2('camp_${CSS.escape(l1val)}')">
+      <td class="period-label" style="font-weight:700">▶ ${l1val}</td>${cells}
+    </tr>`;
+
+    // L2 rows (collapsed by default)
+    const l2Map={};
+    l1rows.forEach(r=>{ const v=r[CAMP_L2]||'(none)'; (l2Map[v]=l2Map[v]||[]).push(r); });
+    const l2Sorted=Object.entries(l2Map).sort(([,a],[,b])=>
+      b.reduce((s,r)=>s+(parseFloat(r.spend)||0),0)-a.reduce((s,r)=>s+(parseFloat(r.spend)||0),0)
+    );
+
+    tBody+=`<tbody id="camp_${CSS.escape(l1val)}" style="display:none">`;
+    for (const [l2val, l2rows] of l2Sorted) {
+      const agg2=sumRows(l2rows);
+      const cells2=METRICS.map(([k,,f])=>`<td>${fmt(agg2[k],f)}</td>`).join('');
+      tBody+=`<tr style="background:var(--gray-50)">
+        <td class="period-label" style="padding-left:24px;font-weight:400;color:var(--gray-500)">↳ ${l2val}</td>${cells2}
+      </tr>`;
+    }
+    tBody+=`</tbody>`;
+  }
+
+  return `<div class="camp-section">
+    <div class="camp-controls">
+      <div class="fg"><span class="fl">Channel</span><select onchange="CAMP_CH=this.value;renderView('campaign')">${chSel}</select></div>
+      <div class="fg"><span class="fl">L1</span><select onchange="CAMP_L1=this.value;renderView('campaign')">${dimSel('l1',CAMP_L1)}</select></div>
+      <div class="fg"><span class="fl">L2</span><select onchange="CAMP_L2=this.value;renderView('campaign')">${dimSel('l2',CAMP_L2)}</select></div>
+      <span style="font-size:11px;color:var(--gray-400);margin-left:auto">Click a row to expand L2 detail</span>
+    </div>
+    <div class="tbl-wrap" data-view="campaign">
+      <table>
+        <thead><tr><th class="period-col">${DIM_OPTIONS.find(o=>o.key===CAMP_L1)?.label||'L1'}</th>${mHdr}</tr></thead>
+        <tbody>${tBody}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function toggleL2(id) {
+  const el=document.getElementById(id);
+  if (el) el.style.display = el.style.display==='none'?'':'none';
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderView(v) {
   if (!CHANNEL_DATA) return;
-  const f = getFilters();
+  const f=getF();
 
-  let sections = '';
+  if (v==='campaign') {
+    document.getElementById('pnl-campaign').innerHTML = buildCampaignReport();
+    syncMasterScroll();
+    return;
+  }
+
+  let sections='';
   for (const ch of CHANNELS) {
     let periods;
-    if (v === 'weekly')  periods = aggWeekly(ch, f);
-    if (v === 'daily')   periods = aggDaily(ch, f);
-    if (v === 'monthly') periods = aggMonthly(ch, f);
-    sections += buildSection(ch, periods, v, v);
+    if (v==='weekly')  periods=aggWeekly(ch,f);
+    if (v==='daily')   periods=aggDaily(ch,f);
+    if (v==='monthly') periods=aggMonthly(ch,f);
+    sections+=buildSection(ch,periods,v,v);
   }
-  document.getElementById(`pnl-${v}`).innerHTML = sections;
+  document.getElementById(`pnl-${v}`).innerHTML=sections;
+  syncMasterScroll();
 }
 
 function render() {
@@ -549,117 +543,128 @@ function render() {
 }
 
 function switchView(v, el) {
-  VIEW = v;
-  document.querySelectorAll('.vt').forEach(t => t.classList.remove('active'));
+  VIEW=v;
+  document.querySelectorAll('.vt').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.querySelectorAll('.vpanel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.vpanel').forEach(p=>p.classList.remove('active'));
   document.getElementById(`pnl-${v}`).classList.add('active');
   renderView(v);
 }
 
-// ── DIMENSION FILTER LOGIC ────────────────────────────────────────────────────
+// ── DIMENSION FILTERS ─────────────────────────────────────────────────────────
 function populateDropdowns() {
-  const src = CAMPAIGN_DATA?.daily || [];
-
-  const campaigns = [...new Set(src.map(r => r.ad_campaign_name).filter(Boolean))].sort();
-  const adGroups  = [...new Set(src.map(r => r.ad_group_name).filter(Boolean))].sort();
-  const adIds     = [...new Set(src.map(r => r.ad_id).filter(Boolean))].sort();
-
-  function fill(id, values) {
-    const el = document.getElementById(id);
-    const cur = el.value;
-    el.innerHTML = `<option value="">All</option>` +
-      values.map(v => `<option value="${v}"${v === cur ? ' selected' : ''}>${v}</option>`).join('');
-  }
-  fill('fCampaign', campaigns);
-  fill('fAdGroup',  adGroups);
-  fill('fAdId',     adIds);
+  const src = CAMPAIGN_DATA?.campaigns || [];
+  const fill=(id,vals,cur)=>{
+    document.getElementById(id).innerHTML=`<option value="">All</option>`+
+      [...new Set(vals.filter(Boolean))].sort().map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+  };
+  fill('fCampaign', src.map(r=>r.ad_campaign_name), getF().campaign);
+  fill('fAdGroup',  src.map(r=>r.ad_group_name),    getF().adGroup);
+  fill('fAdId',     src.map(r=>r.ad_id),            getF().adId);
 }
 
-function onDimFilterChange() {
-  const f = getFilters();
-  if (!hasDimFilter(f)) { updateClearBtn(); return; }
-
-  // Cascade: when campaign changes, narrow ad groups and ad IDs
-  const src = CAMPAIGN_DATA?.daily || [];
-  const fCampaign = f.campaign;
-  const fAdGroup  = f.adGroup;
-
-  let subset = src;
-  if (fCampaign) subset = subset.filter(r => r.ad_campaign_name === fCampaign);
-  if (fAdGroup)  subset = subset.filter(r => r.ad_group_name   === fAdGroup);
-
-  const adGroups = [...new Set(src.filter(r => !fCampaign || r.ad_campaign_name === fCampaign).map(r => r.ad_group_name).filter(Boolean))].sort();
-  const adIds    = [...new Set(subset.map(r => r.ad_id).filter(Boolean))].sort();
-
-  function refill(id, values, current) {
-    const el = document.getElementById(id);
-    el.innerHTML = `<option value="">All</option>` +
-      values.map(v => `<option value="${v}"${v === current ? ' selected' : ''}>${v}</option>`).join('');
-  }
-  refill('fAdGroup', adGroups, fAdGroup);
-  refill('fAdId',    adIds,    f.adId);
-
+function onDimChange() {
+  const f=getF();
+  if (!CAMPAIGN_DATA) { updateClearBtn(); return; }
+  const src=CAMPAIGN_DATA.campaigns;
+  let sub=src;
+  if (f.campaign) sub=sub.filter(r=>r.ad_campaign_name===f.campaign);
+  const grps=[...new Set(sub.map(r=>r.ad_group_name).filter(Boolean))].sort();
+  const ids=[...new Set(sub.filter(r=>!f.adGroup||r.ad_group_name===f.adGroup).map(r=>r.ad_id).filter(Boolean))].sort();
+  const refill=(id,vals,cur)=>{
+    document.getElementById(id).innerHTML=`<option value="">All</option>`+
+      vals.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+  };
+  refill('fAdGroup',grps,f.adGroup);
+  refill('fAdId',ids,f.adId);
   updateClearBtn();
 }
 
-function clearFilters() {
-  document.getElementById('fCampaign').value = '';
-  document.getElementById('fAdGroup').value  = '';
-  document.getElementById('fAdId').value     = '';
+function clearDimFilters() {
+  ['fCampaign','fAdGroup','fAdId'].forEach(id=>{ document.getElementById(id).value=''; });
   populateDropdowns();
   updateClearBtn();
   render();
 }
 
 function updateClearBtn() {
-  const f = getFilters();
-  document.getElementById('clearBtn').style.display = hasDimFilter(f) ? '' : 'none';
+  const f=getF();
+  document.getElementById('clearBtn').style.display=hasDim(f)?'':'none';
 }
 
-// ── CAMPAIGN DATA LOADING ─────────────────────────────────────────────────────
-async function loadCampaignData() {
-  try {
-    const resp = await fetch('data/campaign_data.json');
-    if (!resp.ok) return;
-    CAMPAIGN_DATA = await resp.json();
-    const NUM = RAW_KEYS;
-    CAMPAIGN_DATA.daily.forEach(r => {
-      NUM.forEach(k => { r[k] = parseFloat(r[k]) || 0; });
-      r.date = r.activity_date || r.date;
-    });
-    populateDropdowns();
-  } catch(e) {
-    console.warn('campaign_data.json not available:', e.message);
-  }
+// ── MASTER SCROLL BAR ─────────────────────────────────────────────────────────
+// One scrollbar at bottom, synced to all visible tbl-wrap elements
+let scrollSyncing=false;
+
+function syncMasterScroll() {
+  requestAnimationFrame(()=>{
+    const wraps=[...document.querySelectorAll(`.vpanel.active .tbl-wrap`)];
+    if (!wraps.length) return;
+    const maxW=Math.max(...wraps.map(w=>w.scrollWidth));
+    document.getElementById('master-scroll-inner').style.width=maxW+'px';
+  });
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('master-scroll').addEventListener('scroll', function() {
+  if (scrollSyncing) return;
+  scrollSyncing=true;
+  const sl=this.scrollLeft;
+  document.querySelectorAll('.vpanel.active .tbl-wrap').forEach(w=>{ w.scrollLeft=sl; });
+  scrollSyncing=false;
+});
+
+// Also sync master when a tbl-wrap scrolls
+document.addEventListener('scroll', function(e) {
+  if (!e.target.classList?.contains('tbl-wrap')) return;
+  if (scrollSyncing) return;
+  scrollSyncing=true;
+  document.getElementById('master-scroll').scrollLeft=e.target.scrollLeft;
+  document.querySelectorAll('.vpanel.active .tbl-wrap').forEach(w=>{ w.scrollLeft=e.target.scrollLeft; });
+  scrollSyncing=false;
+}, true);
+
+// ── LOAD DATA ─────────────────────────────────────────────────────────────────
 async function init() {
-  document.getElementById('ed').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ed').value=new Date().toISOString().slice(0,10);
 
   try {
-    const resp = await fetch('data/channel_data.json');
-    if (!resp.ok) throw new Error('channel_data.json not found');
-    CHANNEL_DATA = await resp.json();
-    CHANNEL_DATA.daily.forEach(r => {
-      RAW_KEYS.forEach(k => { r[k] = parseFloat(r[k]) || 0; });
-    });
+    const r=await fetch('data/channel_data.json');
+    if (!r.ok) throw new Error('channel_data.json not found');
+    CHANNEL_DATA=await r.json();
+    CHANNEL_DATA.daily.forEach(row=>RAW_KEYS.forEach(k=>{ row[k]=parseFloat(row[k])||0; }));
     if (CHANNEL_DATA.generated_at) {
-      const d = new Date(CHANNEL_DATA.generated_at);
-      document.getElementById('upd').textContent =
-        'Data as of ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      const d=new Date(CHANNEL_DATA.generated_at);
+      document.getElementById('upd').textContent='Data as of '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     }
     render();
   } catch(e) {
-    ['weekly','daily','monthly'].forEach(v =>
-      document.getElementById(`pnl-${v}`).innerHTML =
-        `<div class="msg">⚠️ ${e.message}</div>`
+    ['weekly','daily','monthly','campaign'].forEach(v=>
+      document.getElementById(`pnl-${v}`).innerHTML=`<div class="msg">⚠️ ${e.message}</div>`
     );
   }
 
-  // Load campaign data in background (enables dimension filters)
-  loadCampaignData();
+  // Background: campaign data (filters + campaign report)
+  try {
+    const r=await fetch('data/campaign_data.json');
+    if (r.ok) {
+      CAMPAIGN_DATA=await r.json();
+      // Normalize campaign rows
+      if (CAMPAIGN_DATA.campaigns) {
+        CAMPAIGN_DATA.campaigns.forEach(row=>{
+          RAW_KEYS.forEach(k=>{ row[k]=parseFloat(row[k])||0; });
+        });
+      }
+      // Also keep daily rows if present for dim filters
+      if (CAMPAIGN_DATA.daily) {
+        CAMPAIGN_DATA.daily.forEach(row=>{
+          RAW_KEYS.forEach(k=>{ row[k]=parseFloat(row[k])||0; });
+          row.date=row.activity_date||row.date;
+        });
+      }
+      populateDropdowns();
+      if (VIEW==='campaign') renderView('campaign');
+    }
+  } catch(e) { console.warn('campaign_data.json:', e.message); }
 }
 
 document.getElementById('sd').addEventListener('change', render);
