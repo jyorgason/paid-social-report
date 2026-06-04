@@ -13,7 +13,7 @@
   --red:      #DC2626; --blue-50: #EFF6FF; --white: #FFFFFF;
   --shadow:   0 1px 3px rgba(0,0,0,.08);
   --r: 6px; --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --label-w: 130px;   /* draggable frozen pane width */
+  --label-w: 130px;
 }
 body { font-family: var(--font); font-size: 13px; color: var(--gray-800); background: var(--gray-100); padding-bottom: 24px; }
 
@@ -65,12 +65,20 @@ select { max-width: 200px; }
 .ch-body.collapsed { display: none; }
 
 /* ── TABLE ── */
-.tbl-wrap { overflow-x: auto; max-height: 480px; overflow-y: auto; scrollbar-width: none; }
-.tbl-wrap::-webkit-scrollbar { display: none; }
+/* max-height fills the window; short tables shrink naturally */
+.tbl-wrap {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 230px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
+}
+.tbl-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.tbl-wrap::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
 
 table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
 
-/* Frozen label column — width driven by --label-w CSS variable */
+/* Frozen label column */
 .period-col, .period-label {
   position: sticky; left: 0; z-index: 2; background: var(--white);
   width: var(--label-w);
@@ -81,27 +89,6 @@ table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
   white-space: nowrap;
 }
 thead .period-col { z-index: 4; background: var(--gray-50); }
-
-/* Resize handle — thin draggable bar on right edge of frozen col */
-#col-resizer {
-  position: fixed;
-  top: 0; bottom: 16px; /* stop above master scrollbar */
-  width: 6px;
-  cursor: col-resize;
-  z-index: 500;
-  background: transparent;
-  transition: background .15s;
-}
-#col-resizer:hover, #col-resizer.dragging { background: var(--green); opacity: .5; }
-#col-resizer::after {
-  content: '⠿';
-  position: absolute;
-  top: 50%; left: -2px;
-  transform: translateY(-50%);
-  font-size: 14px;
-  color: var(--gray-400);
-  pointer-events: none;
-}
 
 thead th {
   position: sticky; top: 0; z-index: 3;
@@ -195,8 +182,6 @@ tr.l2-row:hover td { background: var(--blue-50) !important; }
   <div id="pnl-campaign" class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
 </div>
 
-<!-- FROZEN PANE RESIZE HANDLE -->
-<div id="col-resizer" title="Drag to resize label column"></div>
 
 <!-- MASTER HORIZONTAL SCROLLBAR -->
 <div id="master-scroll"><div id="master-scroll-inner"></div></div>
@@ -559,7 +544,7 @@ function buildCampaignReport() {
         <select onchange="CAMP_L2=this.value;renderView('campaign')">${dimSel(CAMP_L2)}</select>
       </div>
       <span style="font-size:11px;color:var(--gray-400);margin-left:auto">
-        Click any row to expand ${l2Label} detail &nbsp;·&nbsp; Drag left edge to resize label column
+        Click any row to expand ${l2Label} detail
       </span>
     </div>
     <div class="tbl-wrap" data-view="campaign">
@@ -600,7 +585,6 @@ function renderView(v) {
   }
   document.getElementById(`pnl-${v}`).innerHTML=sections;
   syncMasterScroll();
-  requestAnimationFrame(positionResizer);
 }
 
 function render() {
@@ -660,46 +644,6 @@ function updateClearBtn() {
   const f=getF();
   document.getElementById('clearBtn').style.display=hasDim(f)?'':'none';
 }
-
-// ── FROZEN PANE RESIZER ───────────────────────────────────────────────────────
-function positionResizer() {
-  const wrap = document.querySelector('.vpanel.active .tbl-wrap');
-  if (!wrap) return;
-  const firstTh = wrap.querySelector('.period-col, .period-label');
-  if (!firstTh) return;
-  const rect = firstTh.getBoundingClientRect();
-  const el = document.getElementById('col-resizer');
-  if (el) el.style.left = (rect.right - 3) + 'px';
-}
-
-(function setupResizer() {
-  let dragging = false, startX = 0, startW = 0;
-  const el = document.getElementById('col-resizer');
-  if (!el) return;
-
-  el.addEventListener('mousedown', e => {
-    dragging = true;
-    startX = e.clientX;
-    startW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 130;
-    el.classList.add('dragging');
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const newW = Math.max(80, Math.min(600, startW + e.clientX - startX));
-    document.documentElement.style.setProperty('--label-w', newW + 'px');
-    positionResizer();
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    el.classList.remove('dragging');
-    document.body.style.userSelect = '';
-  });
-})();
 
 // ── MASTER SCROLL BAR ─────────────────────────────────────────────────────────
 // One scrollbar at bottom, synced to all visible tbl-wrap elements
@@ -778,7 +722,6 @@ async function init() {
 
 document.getElementById('sd').addEventListener('change', render);
 document.getElementById('ed').addEventListener('change', render);
-window.addEventListener('resize', positionResizer);
 init();
 </script>
 </body>
