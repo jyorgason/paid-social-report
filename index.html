@@ -110,26 +110,32 @@ input[type=text] { width: 160px; }
 
 table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
 
-td:first-child, th:first-child {
-  position: sticky; left: 0; z-index: 2; background: inherit; min-width: 126px;
+/* Frozen period-label column */
+.period-col, .period-label {
+  position: sticky; left: 0; z-index: 2; background: var(--white);
+  min-width: 110px; max-width: 140px; white-space: nowrap;
 }
-thead th:first-child { z-index: 4; }
+thead .period-col { z-index: 4; background: var(--gray-50); }
 
 thead th {
   position: sticky; top: 0; z-index: 3;
   background: var(--gray-50); border-bottom: 2px solid var(--gray-200);
-  padding: 6px 10px; text-align: right; font-weight: 700;
-  color: var(--gray-500); font-size: 11px; text-transform: uppercase; letter-spacing: .3px;
+  padding: 6px 8px; text-align: right; font-weight: 700;
+  color: var(--gray-500); font-size: 11px; white-space: nowrap;
+  min-width: 80px;
 }
-thead th:first-child { text-align: left; }
-thead th.cur { background: var(--green-bg); color: var(--green); }
+/* Group color bands on column headers */
+thead th[data-group="Media"]   { border-top: 3px solid #3B82F6; }
+thead th[data-group="Funnel"]  { border-top: 3px solid var(--green); }
+thead th[data-group="Payback"] { border-top: 3px solid var(--amber, #F59E0B); }
 
 tbody tr { border-bottom: 1px solid var(--gray-100); }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover td { background: var(--blue-50) !important; }
 
-td { padding: 5px 10px; text-align: right; color: var(--gray-800); }
-td:first-child { text-align: left; font-weight: 600; background: var(--white); }
+td { padding: 5px 8px; text-align: right; color: var(--gray-800); font-size: 12px; }
+.period-label { text-align: left; font-weight: 700; color: var(--gray-700, #374151); font-size: 12px; }
+.period-label.cur { background: var(--green-bg) !important; color: var(--green); }
 
 td.cur { background: var(--green-bg); }
 
@@ -227,31 +233,40 @@ tr.sum-div td { background: transparent; height: 5px; border: none; }
 const CHANNELS = ['Total','Facebook','LinkedIn','YouTube','Reddit'];
 const CH_ICONS = {Total:'📊',Facebook:'📘',LinkedIn:'💼',YouTube:'▶️',Reddit:'🔴'};
 
+// [key, label, format, group, lowerIsBetter]
+// Exact column order from Tableau workbook
 const METRICS = [
-  ['spend',       'Spend',     '$',  'Ad Performance', false],
-  ['impressions', 'Impr.',     '#',  'Ad Performance', false],
-  ['clicks',      'Clicks',    '#',  'Ad Performance', false],
-  ['ctr',         'CTR',       '%',  'Ad Performance', false],
-  ['ecpm',        'eCPM',      '$',  'Ad Performance', true ],
-  ['ecpc',        'eCPC',      '$',  'Ad Performance', true ],
-  ['mql1',        'MQL1',      '#',  'Funnel',         false],
-  ['mql2',        'MQL2',      '#',  'Funnel',         false],
-  ['sal',         'SAL',       '#',  'Funnel',         false],
-  ['tql',         'TQL',       '#',  'Funnel',         false],
-  ['sao',         'SAO',       '#',  'Funnel',         false],
-  ['cw',          'CW',        '#',  'Funnel',         false],
-  ['cw_mrr',      'CW MRR',    '$',  'Funnel',         false],
-  ['dq',          'DQ',        '#',  'Funnel',         true ],
-  ['dq_rate',     'DQ Rate',   '%',  'Funnel',         true ],
-  ['cp_mql1',     'CP MQL1',   '$',  'Cost Per',       true ],
-  ['cp_mql2',     'CP MQL2',   '$',  'Cost Per',       true ],
-  ['cp_sal',      'CP SAL',    '$',  'Cost Per',       true ],
-  ['cp_sao',      'CP SAO',    '$',  'Cost Per',       true ],
-  ['cp_cw',       'CP CW',     '$',  'Cost Per',       true ],
-  ['mql1_to_sao', 'MQL1→SAO',  '%',  'Conv. Rates',    false],
-  ['sao_to_cw',   'SAO→CW',    '%',  'Conv. Rates',    false],
-  ['pbp_months',  'PBP (Mo)',  '.1', 'Payback',        true ],
-  ['pbp_years',   'PBP (Yr)',  '.2', 'Payback',        true ],
+  ['spend',        'Spend',       '$',  'Media',    false],
+  ['impressions',  'Impressions', '#',  'Media',    false],
+  ['clicks',       'Clicks',      '#',  'Media',    false],
+  ['ecpm',         'eCPM',        '$',  'Media',    true ],
+  ['ctr',          'CTR',         '%',  'Media',    false],
+  ['ecpc',         'eCPC',        '$',  'Media',    true ],
+  ['mql1',         'MQL1',        '#',  'Funnel',   false],
+  ['cp_mql1',      'CP MQL1',     '$',  'Funnel',   true ],
+  ['mql1_ta',      'MQL1 TA',     '#',  'Funnel',   false],
+  ['cp_mql1_ta',   'CP MQL1 TA',  '$',  'Funnel',   true ],
+  ['mql2',         'MQL2',        '#',  'Funnel',   false],
+  ['cp_mql2',      'CP MQL2',     '$',  'Funnel',   true ],
+  ['mql2_ta',      'MQL2 TA',     '#',  'Funnel',   false],
+  ['cp_mql2_ta',   'CP MQL2 TA',  '$',  'Funnel',   true ],
+  ['dq',           'DQ',          '#',  'Funnel',   true ],
+  ['dq_rate',      'DQ Rate',     '%',  'Funnel',   true ],
+  ['sal',          'SAL',         '#',  'Funnel',   false],
+  ['cp_sal',       'CP SAL',      '$',  'Funnel',   true ],
+  ['tql',          'TQL',         '#',  'Funnel',   false],
+  ['cp_tql',       'CP TQL',      '$',  'Funnel',   true ],
+  ['sao',          'SAO',         '#',  'Funnel',   false],
+  ['cp_sao',       'CP SAO',      '$',  'Funnel',   true ],
+  ['mql1_to_sao',  'MQL1→SAO',    '%',  'Funnel',   false],
+  ['sao_ta',       'SAO TA',      '#',  'Funnel',   false],
+  ['cp_sao_ta',    'CP SAO TA',   '$',  'Funnel',   true ],
+  ['cw',           'CW',          '#',  'Funnel',   false],
+  ['cp_cw',        'CP CW',       '$',  'Funnel',   true ],
+  ['sao_to_cw',    'SAO→CW',      '%',  'Funnel',   false],
+  ['cw_mrr',       'CW MRR',      '$',  'Funnel',   false],
+  ['pbp_months',   'PBP (Mo)',    '.1', 'Payback',  true ],
+  ['pbp_years',    'PBP (Yr)',    '.2', 'Payback',  true ],
 ];
 
 const RAW_KEYS = ['spend','impressions','clicks','mql1','mql1_ta','mql2','mql2_ta',
@@ -285,18 +300,22 @@ function fmtDelta(v, lib) {
 const div = (a, b) => (!b || b === 0) ? null : a / b;
 
 function enrich(r) {
-  r.ctr = div(r.clicks, r.impressions);
-  r.ecpm = r.impressions ? r.spend / (r.impressions / 1000) : null;
-  r.ecpc = div(r.spend, r.clicks);
-  r.dq_rate = div(r.dq, r.mql_total);
-  r.cp_mql1 = div(r.spend, r.mql1);
-  r.cp_mql2 = div(r.spend, r.mql2);
-  r.cp_sal  = div(r.spend, r.sal);
-  r.cp_sao  = div(r.spend, r.sao);
-  r.cp_cw   = div(r.spend, r.cw);
-  r.mql1_to_sao = div(r.sao, r.mql1);
-  r.sao_to_cw   = div(r.cw, r.sao);
-  r.pbp_months  = div(r.spend, r.cw_mrr);
+  r.ctr        = div(r.clicks,   r.impressions);
+  r.ecpm       = r.impressions ? r.spend / (r.impressions / 1000) : null;
+  r.ecpc       = div(r.spend,    r.clicks);
+  r.dq_rate    = div(r.dq,       r.mql_total);
+  r.cp_mql1    = div(r.spend,    r.mql1);
+  r.cp_mql1_ta = div(r.spend,    r.mql1_ta);
+  r.cp_mql2    = div(r.spend,    r.mql2);
+  r.cp_mql2_ta = div(r.spend,    r.mql2_ta);
+  r.cp_sal     = div(r.spend,    r.sal);
+  r.cp_tql     = div(r.spend,    r.tql);
+  r.cp_sao     = div(r.spend,    r.sao);
+  r.cp_sao_ta  = div(r.spend,    r.sao_ta);
+  r.cp_cw      = div(r.spend,    r.cw);
+  r.mql1_to_sao = div(r.sao,    r.mql1);
+  r.sao_to_cw   = div(r.cw,     r.sao);
+  r.pbp_months  = div(r.spend,   r.cw_mrr);
   r.pbp_years   = r.pbp_months != null ? r.pbp_months / 12 : null;
   return r;
 }
@@ -423,6 +442,7 @@ function calcPctAvg(periods, avg) {
 }
 
 // ── TABLE BUILDER ─────────────────────────────────────────────────────────────
+// Layout: periods as ROWS (matching Tableau), metric names as COLUMN HEADERS
 function buildTable(periods, viewType) {
   if (!periods?.length) return '<div class="msg" style="padding:24px">No data for selected range.</div>';
 
@@ -430,47 +450,44 @@ function buildTable(periods, viewType) {
   const avg6   = calc6Avg(periods);
   const pctAvg = calcPctAvg(periods, avg6);
 
-  const wowLbl = viewType === 'monthly' ? 'MoM % Change'   : 'WoW % Change';
-  const avgLbl = viewType === 'monthly' ? '6-Month Avg'    : '6-Week Avg';
-  const pctLbl = viewType === 'monthly' ? '% vs 6-Mo Avg'  : '% vs 6-Wk Avg';
+  const wowLbl = viewType === 'monthly' ? 'MoM % Change'  : 'WoW % Change';
+  const avgLbl = viewType === 'monthly' ? '6-Month Avg'   : '6-Week Avg';
+  const pctLbl = viewType === 'monthly' ? '% vs 6-Mo Avg' : '% vs 6-Wk Avg';
 
-  const hdr = periods.map(p =>
-    `<th class="${p.isCurrent?'cur':''}" title="${p.sub||''}">${p.label}</th>`
+  // Column headers = metric names (with group color coding via data-attr)
+  const metricHdrs = METRICS.map(([,label,,group]) =>
+    `<th data-group="${group}">${label}</th>`
   ).join('');
 
-  let lastSection = null;
-  let body = '';
-
-  for (const [key, label, format, section, lib] of METRICS) {
-    if (section !== lastSection) {
-      body += `<tr class="sec-hdr"><td colspan="${periods.length+1}">${section}</td></tr>`;
-      lastSection = section;
-    }
-    const cells = periods.map(p =>
+  // One ROW per period
+  const periodRows = periods.map(p => {
+    const cells = METRICS.map(([key,,format]) =>
       `<td class="${p.isCurrent?'cur':''}">${fmt(p[key], format)}</td>`
     ).join('');
-    body += `<tr><td>${label}</td>${cells}</tr>`;
-  }
+    return `<tr>
+      <td class="period-label${p.isCurrent?' cur':''}" title="${p.sub||p.label}">${p.label}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
 
-  // summary rows
+  // Summary rows: one cell per metric column
   const summRow = (lbl, dataObj, isDelta) => {
     if (!dataObj) return '';
     const cells = METRICS.map(([key,,format,,lib]) => {
       const v = dataObj[key];
       return `<td>${isDelta ? fmtDelta(v, lib) : fmt(v, format)}</td>`;
     }).join('');
-    return `<tr class="sum-row"><td>${lbl}</td>${cells}</tr>`;
+    return `<tr class="sum-row"><td class="period-label">${lbl}</td>${cells}</tr>`;
   };
 
-  const metricHdrs = METRICS.map(([,label]) => `<th>${label}</th>`).join('');
-
+  const ncols = METRICS.length + 1;
   return `<table>
-    <thead><tr><th>Period</th>${metricHdrs}</tr></thead>
+    <thead><tr><th class="period-col"></th>${metricHdrs}</tr></thead>
     <tbody>
-      ${body}
-      <tr class="sum-div"><td colspan="${METRICS.length+1}"></td></tr>
-      ${summRow(wowLbl, wow, true)}
-      ${summRow(avgLbl, avg6, false)}
+      ${periodRows}
+      <tr class="sum-div"><td colspan="${ncols}"></td></tr>
+      ${summRow(wowLbl, wow,    true)}
+      ${summRow(avgLbl, avg6,   false)}
       ${summRow(pctLbl, pctAvg, true)}
     </tbody>
   </table>`;
