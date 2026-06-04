@@ -598,9 +598,11 @@ function switchView(v, el) {
   el.classList.add('active');
   document.querySelectorAll('.vpanel').forEach(p=>p.classList.remove('active'));
   document.getElementById(`pnl-${v}`).classList.add('active');
-  // Set sensible default label width per view
   const defaultW = v === 'campaign' ? '260px' : '130px';
   document.documentElement.style.setProperty('--label-w', defaultW);
+  // Campaign has one table with its own scrollbar — no master sync needed
+  document.getElementById('master-scroll').style.display = v === 'campaign' ? 'none' : '';
+  document.body.style.paddingBottom = v === 'campaign' ? '0' : '';
   renderView(v);
 }
 
