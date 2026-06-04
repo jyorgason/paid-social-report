@@ -302,10 +302,22 @@ tr.l2-row:hover td { background: var(--surface-hover) !important; }
 
 /* ── LEGEND ── */
 .legend {
-  display: flex; flex-wrap: wrap; gap: 14px;
+  display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
   padding: var(--sp-8) 14px; font-size: 11px; color: var(--text-x-weak);
-  border-top: 1px solid var(--border-weak);
+  border-top: 1px solid var(--border-weak); font-family: var(--font-body);
 }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch {
+  width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+  display: inline-block;
+}
+.legend-swatch.current  { background: var(--brand-bg); border: 1.5px solid var(--brand); }
+.legend-swatch.media    { background: #1a6eb5; }
+.legend-swatch.funnel   { background: var(--brand); }
+.legend-swatch.payback  { background: #976e00; }
+.legend-italic { font-style: italic; color: var(--text-xx-weak); }
+.legend-pos { color: var(--positive); font-weight: 700; }
+.legend-neg { color: var(--negative); font-weight: 700; }
 
 /* ── STATES ── */
 .msg { padding: 50px 20px; text-align: center; color: var(--text-xx-weak); font-size: 14px; }
@@ -856,12 +868,12 @@ function buildSection(ch, periods, vt, vKey) {
     <div class="ch-body${col?' collapsed':''}" id="body_${key}">
       <div class="tbl-wrap" data-view="${vKey}">${buildTable(periods,vt)}</div>
       <div class="legend">
-        <span>🟢 Current period</span>
-        <span style="font-style:italic;color:var(--gray-400)">Italic = summary rows</span>
-        <span><span class="pos">▲</span>/<span class="neg">▼</span> cost metrics inverted</span>
-        <span style="color:#3B82F6">■ Media</span>
-        <span style="color:var(--green)">■ Funnel</span>
-        <span style="color:#F59E0B">■ Payback</span>
+        <span class="legend-item"><span class="legend-swatch current"></span>Current period</span>
+        <span class="legend-item legend-italic">Italic rows = summary (WoW / avg)</span>
+        <span class="legend-item"><span class="legend-pos">▲</span>&thinsp;<span class="legend-neg">▼</span>&ensp;cost metrics inverted</span>
+        <span class="legend-item"><span class="legend-swatch media"></span>Media</span>
+        <span class="legend-item"><span class="legend-swatch funnel"></span>Funnel</span>
+        <span class="legend-item"><span class="legend-swatch payback"></span>Payback</span>
       </div>
     </div>
   </div>`;
@@ -955,7 +967,7 @@ function buildCampaignReport() {
       <div class="fg"><span class="fl">L2</span>
         <select onchange="CAMP_L2=this.value;renderView('campaign')">${dimSel(CAMP_L2)}</select>
       </div>
-      <span style="font-size:11px;color:var(--gray-400);margin-left:auto">
+      <span style="font-size:11px;color:var(--text-xx-weak);margin-left:auto">
         Click any row to expand ${l2Label} detail
       </span>
     </div>
