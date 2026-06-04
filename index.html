@@ -408,11 +408,13 @@ function sumRows(rows) {
   return enrich(s);
 }
 
-// ── MULTI-SELECT STATE & LOGIC ────────────────────────────────────────────────
+// ── MULTI-SELECT — TABLEAU EXCLUSION MODEL ────────────────────────────────────
+// excl = values to EXCLUDE. Empty set = all values pass (default / "All Selected").
+// Unchecking an item adds it to excl; checking removes it. "Select All" clears excl.
 const MS = {
-  campaign: { sel: new Set(), q: '' },
-  adGroup:  { sel: new Set(), q: '' },
-  adId:     { sel: new Set(), q: '' },
+  campaign: { excl: new Set(), q: '' },
+  adGroup:  { excl: new Set(), q: '' },
+  adId:     { excl: new Set(), q: '' },
 };
 const MS_LABELS = { campaign: 'Campaign', adGroup: 'Ad Group', adId: 'Ad ID' };
 const MS_FIELDS = { campaign: 'ad_campaign_name', adGroup: 'ad_group_name', adId: 'ad_id' };
@@ -429,14 +431,15 @@ function msFilter(dim, q) {
   msRenderList(dim);
 }
 
+// Available options cascade from upstream non-excluded values
 function msGetOptions(dim) {
   if (!CAMPAIGN_DATA) return [];
   let rows = CAMPAIGN_DATA.campaigns;
-  if (dim === 'adGroup' && MS.campaign.sel.size > 0)
-    rows = rows.filter(r => MS.campaign.sel.has(String(r[MS_FIELDS.campaign])));
+  if (dim === 'adGroup' && MS.campaign.excl.size > 0)
+    rows = rows.filter(r => !MS.campaign.excl.has(String(r[MS_FIELDS.campaign])));
   if (dim === 'adId') {
-    if (MS.campaign.sel.size > 0) rows = rows.filter(r => MS.campaign.sel.has(String(r[MS_FIELDS.campaign])));
-    if (MS.adGroup.sel.size  > 0) rows = rows.filter(r => MS.adGroup.sel.has(String(r[MS_FIELDS.adGroup])));
+    if (MS.campaign.excl.size > 0) rows = rows.filter(r => !MS.campaign.excl.has(String(r[MS_FIELDS.campaign])));
+    if (MS.adGroup.excl.size  > 0) rows = rows.filter(r => !MS.adGroup.excl.has(String(r[MS_FIELDS.adGroup])));
   }
   const field = MS_FIELDS[dim];
   return [...new Set(rows.map(r => String(r[field])).filter(v => v && v !== 'null' && v !== ''))].sort();
@@ -444,18 +447,33 @@ function msGetOptions(dim) {
 
 function msRenderList(dim) {
   const options = msGetOptions(dim);
-  const q   = MS[dim].q;
-  const sel = MS[dim].sel;
+  const q    = MS[dim].q;
+  const excl = MS[dim].excl;
   const visible = options.filter(v => !q || v.toLowerCase().includes(q));
+
+  // Render "Select All" checkbox in the sel-bar
+  const selBar = document.querySelector(`#msp-${dim} .ms-sel-bar`);
+  if (selBar) {
+    const allChecked = excl.size === 0;
+    const incl = options.length - excl.size;
+    const countLbl = excl.size > 0 ? `${incl} of ${options.length} selected` : `${options.length} items`;
+    selBar.innerHTML = `
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600">
+        <input type="checkbox" ${allChecked ? 'checked' : ''} style="accent-color:var(--green);cursor:pointer"
+          onchange="msToggleAll('${dim}',this.checked)"> Select All
+      </label>
+      <span class="ms-count-lbl" id="msc-${dim}">${countLbl}</span>`;
+  }
 
   const list = document.getElementById(`msl-${dim}`);
   if (!visible.length) {
-    list.innerHTML = `<div class="ms-empty">${q ? `No matches for "${q}"` : 'No options available'}</div>`;
+    list.innerHTML = `<div class="ms-empty">${q ? `No matches for "${q}"` : 'No options'}</div>`;
   } else {
     list.innerHTML = visible.map(v => {
       const eid = `msopt_${dim}_${CSS.escape(v)}`;
+      const checked = !excl.has(v);  // checked = NOT excluded
       return `<div class="ms-option">
-        <input type="checkbox" id="${eid}" ${sel.has(v)?'checked':''}
+        <input type="checkbox" id="${eid}" ${checked ? 'checked' : ''}
           onchange="msToggleOpt('${dim}',this.dataset.v,this.checked)" data-v="${v.replace(/"/g,'&quot;')}">
         <label for="${eid}" title="${v}">${v}</label>
       </div>`;
@@ -465,51 +483,66 @@ function msRenderList(dim) {
 }
 
 function msUpdateTrigger(dim) {
-  const count = MS[dim].sel.size;
-  document.getElementById(`msc-${dim}`).textContent = count ? `${count} selected` : '';
+  const options = msGetOptions(dim);
+  const excl    = MS[dim].excl;
+  const isFiltered = excl.size > 0;
+  const included   = options.length - excl.size;
   const trig = document.getElementById(`mst-${dim}`);
-  trig.classList.toggle('has-sel', count > 0);
-  const badge = count > 0 ? `<span class="ms-badge">${count}</span>` : '';
-  const lbl   = count === 0 ? `All ${MS_LABELS[dim]}s`
-              : count === 1 ? [...MS[dim].sel][0]
-              : MS_LABELS[dim];
+  trig.classList.toggle('has-sel', isFiltered);
+  const badge = isFiltered ? `<span class="ms-badge">${included}</span>` : '';
+  const lbl   = isFiltered ? MS_LABELS[dim] : `All ${MS_LABELS[dim]}s`;
   trig.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;flex:1">${lbl}</span>${badge}<span class="ms-chevron">▾</span>`;
 }
 
+// "Select All" checkbox — clears or fills excl
+function msToggleAll(dim, allChecked) {
+  if (allChecked) {
+    MS[dim].excl.clear(); // include everything
+  } else {
+    // Deselect visible options only (respects search)
+    msGetOptions(dim).filter(v => {
+      const q = MS[dim].q;
+      return !q || v.toLowerCase().includes(q);
+    }).forEach(v => MS[dim].excl.add(v));
+  }
+  msRenderList(dim);
+  updateClearBtn();
+}
+
+// Individual checkbox toggle: checked = re-include (remove from excl); unchecked = exclude
 function msToggleOpt(dim, val, checked) {
-  if (checked) MS[dim].sel.add(val);
-  else         MS[dim].sel.delete(val);
-  if (dim === 'campaign') { MS.adGroup.sel.clear(); MS.adId.sel.clear(); msRenderList('adGroup'); msRenderList('adId'); }
-  if (dim === 'adGroup')  { MS.adId.sel.clear(); msRenderList('adId'); }
+  if (checked) MS[dim].excl.delete(val);
+  else         MS[dim].excl.add(val);
   msRenderList(dim);
   updateClearBtn();
 }
 
-function msSelectAll(dim) {
-  const options = msGetOptions(dim);
-  const q = MS[dim].q;
-  options.filter(v => !q || v.toLowerCase().includes(q)).forEach(v => MS[dim].sel.add(v));
-  if (dim === 'campaign') { MS.adGroup.sel.clear(); MS.adId.sel.clear(); msRenderList('adGroup'); msRenderList('adId'); }
-  if (dim === 'adGroup')  { MS.adId.sel.clear(); msRenderList('adId'); }
-  msRenderList(dim);
-  updateClearBtn();
-}
+// "Select all visible" button — kept for the static HTML button; same as clicking Select All checkbox
+function msSelectAll(dim) { msToggleAll(dim, true); }
 
+// "Clear all" footer button — same as select-all (clears all exclusions)
 function msClear(dim) {
-  MS[dim].sel.clear(); MS[dim].q = '';
-  const searchEl = document.querySelector(`#msp-${dim} .ms-search`);
-  if (searchEl) searchEl.value = '';
+  MS[dim].excl.clear(); MS[dim].q = '';
+  const s = document.querySelector(`#msp-${dim} .ms-search`);
+  if (s) s.value = '';
   msRenderList(dim);
-  if (dim === 'campaign') { MS.adGroup.sel.clear(); MS.adId.sel.clear(); msRenderList('adGroup'); msRenderList('adId'); }
-  if (dim === 'adGroup')  { MS.adId.sel.clear(); msRenderList('adId'); }
   updateClearBtn();
 }
 
-function msHasDim() { return MS.campaign.sel.size>0 || MS.adGroup.sel.size>0 || MS.adId.sel.size>0; }
+// Filter is active when any dimension has exclusions
+function msHasDim() { return MS.campaign.excl.size>0 || MS.adGroup.excl.size>0 || MS.adId.excl.size>0; }
 
 function msPopulate() { ['campaign','adGroup','adId'].forEach(d => msRenderList(d)); }
 
-// Close panels when clicking outside any ms-wrap
+// Apply MS excl filters to a rows array — used by Campaign Report and future daily rollup
+function msFilterRows(rows) {
+  if (MS.campaign.excl.size > 0) rows = rows.filter(r => !MS.campaign.excl.has(String(r.ad_campaign_name)));
+  if (MS.adGroup.excl.size  > 0) rows = rows.filter(r => !MS.adGroup.excl.has(String(r.ad_group_name)));
+  if (MS.adId.excl.size     > 0) rows = rows.filter(r => !MS.adId.excl.has(String(r.ad_id)));
+  return rows;
+}
+
+// Close panels on outside click
 document.addEventListener('click', e => {
   if (!e.target.closest('.ms-wrap'))
     document.querySelectorAll('.ms-panel.open').forEach(p => p.classList.remove('open'));
@@ -523,14 +556,8 @@ function getF() {
   };
 }
 
+// Channel views use date-level daily data (no campaign field — dim filters n/a here)
 function srcRows(ch, f) {
-  if (msHasDim() && CAMPAIGN_DATA) {
-    let rows = ch==='Total' ? CAMPAIGN_DATA.campaigns : CAMPAIGN_DATA.campaigns.filter(r=>r.channel===ch);
-    if (MS.campaign.sel.size > 0) rows = rows.filter(r => MS.campaign.sel.has(String(r.ad_campaign_name)));
-    if (MS.adGroup.sel.size  > 0) rows = rows.filter(r => MS.adGroup.sel.has(String(r.ad_group_name)));
-    if (MS.adId.sel.size     > 0) rows = rows.filter(r => MS.adId.sel.has(String(r.ad_id)));
-    return rows;
-  }
   const rows = CHANNEL_DATA.daily;
   return ch==='Total' ? rows : rows.filter(r=>r.channel===ch);
 }
@@ -690,6 +717,7 @@ function buildCampaignReport() {
   let rows = CAMP_CH==='Total'
     ? CAMPAIGN_DATA.campaigns
     : CAMPAIGN_DATA.campaigns.filter(r=>r.channel===CAMP_CH);
+  rows = msFilterRows(rows); // apply header Campaign / Ad Group / Ad ID filters
 
   // Group by L1
   const l1Map = {};
@@ -820,7 +848,7 @@ function switchView(v, el) {
 
 function clearDimFilters() {
   ['campaign','adGroup','adId'].forEach(dim => {
-    MS[dim].sel.clear(); MS[dim].q = '';
+    MS[dim].excl.clear(); MS[dim].q = '';
     const s = document.querySelector(`#msp-${dim} .ms-search`);
     if (s) s.value = '';
   });
