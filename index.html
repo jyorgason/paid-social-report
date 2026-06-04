@@ -1120,12 +1120,10 @@ function toggleTheme() {
   localStorage.setItem('bhPaidSocialTheme', next);
 }
 
-// Restore saved preference
+// Restore saved preference — default is always light
 (function() {
   const saved = localStorage.getItem('bhPaidSocialTheme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  if (theme === 'dark') {
+  if (saved === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
     document.getElementById('themeToggle').textContent = '☀️';
   }
