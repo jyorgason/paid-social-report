@@ -13,6 +13,7 @@
   --red:      #DC2626; --blue-50: #EFF6FF; --white: #FFFFFF;
   --shadow:   0 1px 3px rgba(0,0,0,.08);
   --r: 6px; --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --label-w: 130px;   /* draggable frozen pane width */
 }
 body { font-family: var(--font); font-size: 13px; color: var(--gray-800); background: var(--gray-100); padding-bottom: 24px; }
 
@@ -69,12 +70,38 @@ select { max-width: 200px; }
 
 table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
 
-/* Frozen period column */
+/* Frozen label column — width driven by --label-w CSS variable */
 .period-col, .period-label {
   position: sticky; left: 0; z-index: 2; background: var(--white);
-  min-width: 110px; max-width: 130px;
+  width: var(--label-w);
+  min-width: 80px;
+  max-width: 600px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 thead .period-col { z-index: 4; background: var(--gray-50); }
+
+/* Resize handle — thin draggable bar on right edge of frozen col */
+#col-resizer {
+  position: fixed;
+  top: 0; bottom: 16px; /* stop above master scrollbar */
+  width: 6px;
+  cursor: col-resize;
+  z-index: 500;
+  background: transparent;
+  transition: background .15s;
+}
+#col-resizer:hover, #col-resizer.dragging { background: var(--green); opacity: .5; }
+#col-resizer::after {
+  content: '⠿';
+  position: absolute;
+  top: 50%; left: -2px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--gray-400);
+  pointer-events: none;
+}
 
 thead th {
   position: sticky; top: 0; z-index: 3;
@@ -104,6 +131,19 @@ tr.sum-row .period-label { color: var(--gray-500); font-size: 11px; font-weight:
 /* ── CAMPAIGN REPORT ── */
 .camp-controls { display: flex; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--gray-200); background: var(--gray-50); flex-wrap: wrap; align-items: center; }
 .camp-section { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+
+/* L1 expand rows */
+tr.l1-row { cursor: pointer; }
+tr.l1-row:hover td { background: var(--green-bg) !important; }
+tr.l1-row td.period-label { font-weight: 700; }
+.l1-arrow { display: inline-block; width: 14px; font-size: 10px; transition: transform .15s; flex-shrink: 0; }
+.l1-label-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l1-badge { font-size: 10px; color: var(--gray-400); font-weight: 400; margin-left: 4px; white-space: nowrap; }
+
+/* L2 rows */
+tr.l2-row td.period-label { padding-left: 24px; color: var(--gray-500); font-weight: 400; font-style: normal; }
+tr.l2-row { background: var(--gray-50); }
+tr.l2-row:hover td { background: var(--blue-50) !important; }
 
 /* ── MASTER SCROLL BAR ── */
 #master-scroll {
@@ -141,19 +181,22 @@ tr.sum-row .period-label { color: var(--gray-500); font-size: 11px; font-weight:
 
 <!-- VIEW TABS -->
 <div class="view-tabs">
-  <div class="vt active" onclick="switchView('weekly',this)">Weekly</div>
-  <div class="vt" onclick="switchView('daily',this)">Daily</div>
+  <div class="vt active" onclick="switchView('daily',this)">Daily</div>
+  <div class="vt" onclick="switchView('weekly',this)">Weekly</div>
   <div class="vt" onclick="switchView('monthly',this)">Monthly</div>
   <div class="vt" onclick="switchView('campaign',this)">Campaign Report</div>
 </div>
 
 <!-- PANELS -->
 <div class="main">
-  <div id="pnl-weekly"   class="vpanel active"><div class="msg"><div class="spin"></div>Loading…</div></div>
-  <div id="pnl-daily"    class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
+  <div id="pnl-daily"    class="vpanel active"><div class="msg"><div class="spin"></div>Loading…</div></div>
+  <div id="pnl-weekly"   class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
   <div id="pnl-monthly"  class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
   <div id="pnl-campaign" class="vpanel"><div class="msg"><div class="spin"></div>Loading…</div></div>
 </div>
+
+<!-- FROZEN PANE RESIZE HANDLE -->
+<div id="col-resizer" title="Drag to resize label column"></div>
 
 <!-- MASTER HORIZONTAL SCROLLBAR -->
 <div id="master-scroll"><div id="master-scroll-inner"></div></div>
@@ -216,11 +259,12 @@ const DIM_OPTIONS = [
 // ── STATE ────────────────────────────────────────────────────────────────────
 let CHANNEL_DATA  = null;
 let CAMPAIGN_DATA = null;
-let VIEW    = 'weekly';
+let VIEW    = 'daily';
 let COLLAPSED = {};
 let CAMP_L1 = 'ad_campaign_name';
 let CAMP_L2 = 'ad_group_name';
 let CAMP_CH = 'Total';
+let CAMP_EXPANDED = {};       // track which L1 rows are expanded
 
 // ── FORMAT ───────────────────────────────────────────────────────────────────
 function fmt(v, f) {
@@ -435,83 +479,103 @@ function toggleSec(key) {
 
 // ── CAMPAIGN REPORT ───────────────────────────────────────────────────────────
 function buildCampaignReport() {
-  const f=getF();
   if (!CAMPAIGN_DATA) return '<div class="msg">Campaign data loading…</div>';
 
-  // L1/L2 selectors
-  const dimSel=(id,val)=>DIM_OPTIONS.map(o=>`<option value="${o.key}"${o.key===val?' selected':''}>${o.label}</option>`).join('');
+  const dimSel = (val) => DIM_OPTIONS.map(o =>
+    `<option value="${o.key}"${o.key===val?' selected':''}>${o.label}</option>`
+  ).join('');
+  const chSel = CHANNELS.map(c =>
+    `<option value="${c}"${c===CAMP_CH?' selected':''}>${CH_ICONS[c]} ${c}</option>`
+  ).join('');
+  const l1Label = DIM_OPTIONS.find(o=>o.key===CAMP_L1)?.label || 'L1';
+  const l2Label = DIM_OPTIONS.find(o=>o.key===CAMP_L2)?.label || 'L2';
 
-  // Channel selector
-  const chSel=CHANNELS.map(c=>`<option value="${c}"${c===CAMP_CH?' selected':''}>${CH_ICONS[c]} ${c}</option>`).join('');
-
-  // Filter and aggregate campaign data
-  let rows = CAMP_CH==='Total' ? CAMPAIGN_DATA.campaigns : CAMPAIGN_DATA.campaigns.filter(r=>r.channel===CAMP_CH);
-  if (f.sd||f.ed) {
-    // Campaign data is pre-aggregated (no date); use as-is but note the date range
-  }
+  let rows = CAMP_CH==='Total'
+    ? CAMPAIGN_DATA.campaigns
+    : CAMPAIGN_DATA.campaigns.filter(r=>r.channel===CAMP_CH);
 
   // Group by L1
   const l1Map = {};
   rows.forEach(r => {
-    const l1val = r[CAMP_L1] || '(none)';
-    if (!l1Map[l1val]) l1Map[l1val] = [];
-    l1Map[l1val].push(r);
+    const v = r[CAMP_L1] || '(none)';
+    (l1Map[v] = l1Map[v] || []).push(r);
   });
 
-  // Sort L1 by spend desc
-  const l1Sorted = Object.entries(l1Map).sort(([,a],[,b])=>{
-    const sa=a.reduce((s,r)=>s+(parseFloat(r.spend)||0),0);
-    const sb=b.reduce((s,r)=>s+(parseFloat(r.spend)||0),0);
-    return sb-sa;
-  });
+  const l1Sorted = Object.entries(l1Map).sort(([,a],[,b]) =>
+    b.reduce((s,r)=>s+(+r.spend||0),0) - a.reduce((s,r)=>s+(+r.spend||0),0)
+  );
 
-  const mHdr=METRICS.map(([,l,,g])=>`<th data-g="${g}">${l}</th>`).join('');
+  const mHdr = METRICS.map(([,l,,g]) => `<th data-g="${g}">${l}</th>`).join('');
 
-  let tBody='';
+  let tBody = '';
   for (const [l1val, l1rows] of l1Sorted) {
-    const agg = sumRows(l1rows);
-    const cells=METRICS.map(([k,,f])=>`<td>${fmt(agg[k],f)}</td>`).join('');
-    tBody+=`<tr style="cursor:pointer" onclick="toggleL2('camp_${CSS.escape(l1val)}')">
-      <td class="period-label" style="font-weight:700">▶ ${l1val}</td>${cells}
+    const agg   = sumRows(l1rows);
+    const cells = METRICS.map(([k,,f]) => `<td>${fmt(agg[k],f)}</td>`).join('');
+    const key   = encodeURIComponent(l1val);
+    const isExp = !!CAMP_EXPANDED[key];
+
+    // Count distinct L2 values for badge
+    const l2vals = [...new Set(l1rows.map(r=>r[CAMP_L2]).filter(Boolean))];
+    const badge  = l2vals.length > 0
+      ? `<span class="l1-badge">(${l2vals.length} ${l2Label.toLowerCase()}${l2vals.length!==1?'s':''})</span>`
+      : '';
+
+    tBody += `<tr class="l1-row" onclick="toggleCampL2('${key}')">
+      <td class="period-label" title="${l1val}">
+        <span class="l1-arrow" id="arr_${key}">${isExp ? '▼' : '▶'}</span>
+        <span class="l1-label-text">${l1val}</span>${badge}
+      </td>${cells}
     </tr>`;
 
-    // L2 rows (collapsed by default)
-    const l2Map={};
-    l1rows.forEach(r=>{ const v=r[CAMP_L2]||'(none)'; (l2Map[v]=l2Map[v]||[]).push(r); });
-    const l2Sorted=Object.entries(l2Map).sort(([,a],[,b])=>
-      b.reduce((s,r)=>s+(parseFloat(r.spend)||0),0)-a.reduce((s,r)=>s+(parseFloat(r.spend)||0),0)
-    );
-
-    tBody+=`<tbody id="camp_${CSS.escape(l1val)}" style="display:none">`;
-    for (const [l2val, l2rows] of l2Sorted) {
-      const agg2=sumRows(l2rows);
-      const cells2=METRICS.map(([k,,f])=>`<td>${fmt(agg2[k],f)}</td>`).join('');
-      tBody+=`<tr style="background:var(--gray-50)">
-        <td class="period-label" style="padding-left:24px;font-weight:400;color:var(--gray-500)">↳ ${l2val}</td>${cells2}
-      </tr>`;
+    // L2 rows — visible if expanded
+    if (isExp) {
+      const l2Map = {};
+      l1rows.forEach(r => {
+        const v = r[CAMP_L2] || '(none)';
+        (l2Map[v] = l2Map[v] || []).push(r);
+      });
+      const l2Sorted = Object.entries(l2Map).sort(([,a],[,b]) =>
+        b.reduce((s,r)=>s+(+r.spend||0),0) - a.reduce((s,r)=>s+(+r.spend||0),0)
+      );
+      for (const [l2val, l2rows] of l2Sorted) {
+        const agg2   = sumRows(l2rows);
+        const cells2 = METRICS.map(([k,,f]) => `<td>${fmt(agg2[k],f)}</td>`).join('');
+        tBody += `<tr class="l2-row">
+          <td class="period-label" title="${l2val}">↳ ${l2val}</td>${cells2}
+        </tr>`;
+      }
     }
-    tBody+=`</tbody>`;
   }
 
   return `<div class="camp-section">
     <div class="camp-controls">
-      <div class="fg"><span class="fl">Channel</span><select onchange="CAMP_CH=this.value;renderView('campaign')">${chSel}</select></div>
-      <div class="fg"><span class="fl">L1</span><select onchange="CAMP_L1=this.value;renderView('campaign')">${dimSel('l1',CAMP_L1)}</select></div>
-      <div class="fg"><span class="fl">L2</span><select onchange="CAMP_L2=this.value;renderView('campaign')">${dimSel('l2',CAMP_L2)}</select></div>
-      <span style="font-size:11px;color:var(--gray-400);margin-left:auto">Click a row to expand L2 detail</span>
+      <div class="fg"><span class="fl">Channel</span>
+        <select onchange="CAMP_CH=this.value;CAMP_EXPANDED={};renderView('campaign')">${chSel}</select>
+      </div>
+      <div class="fg"><span class="fl">L1</span>
+        <select onchange="CAMP_L1=this.value;CAMP_EXPANDED={};renderView('campaign')">${dimSel(CAMP_L1)}</select>
+      </div>
+      <div class="fg"><span class="fl">L2</span>
+        <select onchange="CAMP_L2=this.value;renderView('campaign')">${dimSel(CAMP_L2)}</select>
+      </div>
+      <span style="font-size:11px;color:var(--gray-400);margin-left:auto">
+        Click any row to expand ${l2Label} detail &nbsp;·&nbsp; Drag left edge to resize label column
+      </span>
     </div>
     <div class="tbl-wrap" data-view="campaign">
-      <table>
-        <thead><tr><th class="period-col">${DIM_OPTIONS.find(o=>o.key===CAMP_L1)?.label||'L1'}</th>${mHdr}</tr></thead>
+      <table class="camp-tbl">
+        <thead><tr>
+          <th class="period-col" style="text-align:left">${l1Label}</th>${mHdr}
+        </tr></thead>
         <tbody>${tBody}</tbody>
       </table>
     </div>
   </div>`;
 }
 
-function toggleL2(id) {
-  const el=document.getElementById(id);
-  if (el) el.style.display = el.style.display==='none'?'':'none';
+function toggleCampL2(key) {
+  CAMP_EXPANDED[key] = !CAMP_EXPANDED[key];
+  renderView('campaign');  // re-render to show/hide L2 rows
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -522,6 +586,7 @@ function renderView(v) {
   if (v==='campaign') {
     document.getElementById('pnl-campaign').innerHTML = buildCampaignReport();
     syncMasterScroll();
+    requestAnimationFrame(positionResizer);
     return;
   }
 
@@ -535,6 +600,7 @@ function renderView(v) {
   }
   document.getElementById(`pnl-${v}`).innerHTML=sections;
   syncMasterScroll();
+  requestAnimationFrame(positionResizer);
 }
 
 function render() {
@@ -548,6 +614,9 @@ function switchView(v, el) {
   el.classList.add('active');
   document.querySelectorAll('.vpanel').forEach(p=>p.classList.remove('active'));
   document.getElementById(`pnl-${v}`).classList.add('active');
+  // Set sensible default label width per view
+  const defaultW = v === 'campaign' ? '260px' : '130px';
+  document.documentElement.style.setProperty('--label-w', defaultW);
   renderView(v);
 }
 
@@ -591,6 +660,46 @@ function updateClearBtn() {
   const f=getF();
   document.getElementById('clearBtn').style.display=hasDim(f)?'':'none';
 }
+
+// ── FROZEN PANE RESIZER ───────────────────────────────────────────────────────
+function positionResizer() {
+  const wrap = document.querySelector('.vpanel.active .tbl-wrap');
+  if (!wrap) return;
+  const firstTh = wrap.querySelector('.period-col, .period-label');
+  if (!firstTh) return;
+  const rect = firstTh.getBoundingClientRect();
+  const el = document.getElementById('col-resizer');
+  if (el) el.style.left = (rect.right - 3) + 'px';
+}
+
+(function setupResizer() {
+  let dragging = false, startX = 0, startW = 0;
+  const el = document.getElementById('col-resizer');
+  if (!el) return;
+
+  el.addEventListener('mousedown', e => {
+    dragging = true;
+    startX = e.clientX;
+    startW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--label-w')) || 130;
+    el.classList.add('dragging');
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const newW = Math.max(80, Math.min(600, startW + e.clientX - startX));
+    document.documentElement.style.setProperty('--label-w', newW + 'px');
+    positionResizer();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove('dragging');
+    document.body.style.userSelect = '';
+  });
+})();
 
 // ── MASTER SCROLL BAR ─────────────────────────────────────────────────────────
 // One scrollbar at bottom, synced to all visible tbl-wrap elements
@@ -669,6 +778,7 @@ async function init() {
 
 document.getElementById('sd').addEventListener('change', render);
 document.getElementById('ed').addEventListener('change', render);
+window.addEventListener('resize', positionResizer);
 init();
 </script>
 </body>
