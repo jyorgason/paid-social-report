@@ -559,7 +559,8 @@ function buildTablePeriodsAsRows(periods, periodLabel, wow, avg6, pctAvg, wowLbl
     if (!dataObj) return '';
     const cells = METRICS.map(([key,,format,,lib]) => {
       const v = dataObj[key];
-      const cell = isDelta ? fmtDelta(v, format, lib) : fmt(v, format);
+      // Delta rows (WoW, % vs avg) are always percentage changes regardless of metric format
+      const cell = isDelta ? fmtDelta(v, '%', lib) : fmt(v, format);
       return `<td>${cell}</td>`;
     }).join('');
     return `<tr class="sum-row"><td>${label}</td>${cells}</tr>`;
